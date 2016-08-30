@@ -6,6 +6,7 @@ use Phlib\Csv\Csv;
 
 class CsvTest extends \PHPUnit_Framework_TestCase
 {
+    use CreateStreamTrait;
 
     public function testMaxColumns()
     {
@@ -175,6 +176,9 @@ class CsvTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $csv->current());
     }
 
+    /**
+     * @return AdapterInterface
+     */
     protected function getTestCsvAdapter()
     {
         $csv = <<<CSV
@@ -185,11 +189,13 @@ CSV;
         return $this->getTestAdapter($csv);
     }
 
+    /**
+     * @param string $data
+     * @return AdapterInterface
+     */
     protected function getTestAdapter($data = '')
     {
-        $stream = fopen('php://memory','r+');
-        fwrite($stream, $data);
-        rewind($stream);
+        $stream = $this->createStream($data);
 
         $adapter = $this->createMock(AdapterInterface::class);
         $adapter->method('getStream')->willReturn($stream);
