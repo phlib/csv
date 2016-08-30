@@ -20,6 +20,8 @@ class Csv implements \Iterator, \Countable
     /** @var  string */
     protected $enclosure;
 
+    protected $maxColumns = 1000;
+
     /**
      * Csv constructor.
      * @param AdapterInterface $adapter
@@ -53,7 +55,7 @@ class Csv implements \Iterator, \Countable
      */
     public function getMaxColumns()
     {
-        return 0;
+        return $this->maxColumns;
     }
 
     /**
@@ -61,7 +63,13 @@ class Csv implements \Iterator, \Countable
      */
     public function setMaxColumns($maxColumns)
     {
+        $options = ['options' => ['min_range' => 1, 'max_range' => PHP_INT_MAX]];
+        $invalid = (filter_var($maxColumns, FILTER_VALIDATE_INT, $options) === false);
+        if ($invalid) {
+            throw new \InvalidArgumentException("Invalid max columns, $maxColumns");
+        }
 
+        $this->maxColumns = (int)$maxColumns;
     }
 
     /**
