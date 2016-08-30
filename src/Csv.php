@@ -9,6 +9,7 @@ class Csv implements \Iterator, \Countable
     const FETCH_ASSOC = 1;
     const FETCH_NUM   = 2;
 
+    /** @var  resource */
     protected $stream;
 
     /** @var  AdapterInterface */
@@ -32,10 +33,23 @@ class Csv implements \Iterator, \Countable
     /** @var  string */
     protected $regex;
 
-    /** @var int  */
+    /** @var  int  */
     protected $rowSize = 24576;
 
-    protected $headers = [];
+    /** @var  array  */
+    protected $headers;
+
+    /** @var  string  */
+    protected $buffer = '';
+
+    /** @var  int  */
+    protected $position = 0;
+
+    /** @var  array */
+    protected $current;
+
+    /** @var  int */
+    protected $count;
 
     /**
      * Csv constructor.
@@ -63,6 +77,12 @@ class Csv implements \Iterator, \Countable
             $this->stream = $this->adapter->getStream();
         }
         return $this->stream;
+    }
+
+    protected function closeStream()
+    {
+        $this->adapter->closeStream();
+        $this->stream = null;
     }
 
     /**
@@ -139,34 +159,116 @@ class Csv implements \Iterator, \Countable
         return $this->headers;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function current()
     {
-        // TODO: Implement current() method.
+        if ($this->current === null) {
+            $this->rewind();
+        }
+
+        $current = $this->current;
+        if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode == self::FETCH_ASSOC) {
+            $current = array_combine($this->headers, $current);
+        }
+
+        return $current;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function next()
     {
-        // TODO: Implement next() method.
+        if ($this->current === null) {
+            $this->rewind();
+            return;
+        }
+
+        $this->position++;
+        $this->current = $this->fetchLine($this->getStream(), $this->buffer);
+
+        if ($this->current === false) {
+            // If there is no current record, we have no valid position
+            $this->position = null;
+        }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function key()
     {
-        // TODO: Implement key() method.
+        if ($this->current === null) {
+            $this->rewind();
+        }
+        return $this->position;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function valid()
     {
-        // TODO: Implement valid() method.
+        return ($this->current !== false);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function rewind()
     {
-        // TODO: Implement rewind() method.
+        $this->buffer   = '';
+        if ($this->stream) {
+//            rewind($this->stream);
+//            reset($this->stream);
+            $this->closeStream();
+        }
+        $stream = $this->getStream();
+        $this->position = 0;
+
+        $this->headers = array();
+        if ($this->hasHeader()) {
+            $line = $this->fetchLine($stream, $this->buffer);
+            if ($line !== false) {
+                $this->headers = $line;
+            }
+        }
+        $this->current = $this->fetchLine($stream, $this->buffer);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function count()
     {
-        // TODO: Implement count() method.
+        if (is_null($this->count)) {
+            $handle = $this->getStream();
+
+            // Store the pointer position and reset the file handle
+            $position = ftell($handle);
+            rewind($handle);
+
+            // Count the rows
+            $count = 0;
+            $buffer = '';
+            while ($this->fetchLine($handle, $buffer)) {
+                $count++;
+            }
+
+            // Store the count
+            $this->count = $count;
+
+            // Reduce the count by one if a headers row is present
+            if ($this->hasHeader() and $this->count > 0) {
+                $this->count--;
+            }
+
+            // Restore the file handle to its previous position
+            fseek($handle, $position);
+        }
+        return $this->count;
     }
 
     /**
@@ -187,6 +289,11 @@ class Csv implements \Iterator, \Countable
         return $this->regex;
     }
 
+    /**
+     * @param $handle
+     * @param $buffer
+     * @return array|bool
+     */
     protected function fetchLine($handle, &$buffer)
     {
         $enclosure = $this->enclosure;
