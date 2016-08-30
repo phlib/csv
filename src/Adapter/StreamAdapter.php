@@ -28,4 +28,13 @@ class StreamAdapter implements AdapterInterface
     {
         return $this->stream;
     }
+
+    public function closeStream()
+    {
+        // This is a passthrough adapter - it's up to it's creator to safely open/close streams
+        // Best we can do is rewind it to the default position
+        rewind($this->stream);
+    }
+
+
 }
