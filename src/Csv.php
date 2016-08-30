@@ -29,6 +29,13 @@ class Csv implements \Iterator, \Countable
     /** @var  int  */
     protected $fetchMode = self::FETCH_ASSOC;
 
+    /** @var  string */
+    protected $regex;
+
+    /** @var int  */
+    protected $rowSize = 24576;
+
+    protected $headers = [];
 
     /**
      * Csv constructor.
@@ -40,7 +47,7 @@ class Csv implements \Iterator, \Countable
     public function __construct(AdapterInterface $adapter, $hasHeader = false, $delimiter = ',', $enclosure = '"')
     {
         $this->adapter = $adapter;
-        $this->hasHeader = $hasHeader;
+        $this->hasHeader = (bool)$hasHeader;
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;
     }
@@ -114,7 +121,7 @@ class Csv implements \Iterator, \Countable
      */
     public function hasHeader()
     {
-        return true;
+        return $this->hasHeader;
     }
 
     /**
@@ -124,7 +131,12 @@ class Csv implements \Iterator, \Countable
      */
     public function headers()
     {
-        return [];
+        if ($this->headers === null) {
+            // Headers a loaded as part of the rewind method
+            $this->rewind();
+        }
+
+        return $this->headers;
     }
 
     public function current()
@@ -157,5 +169,94 @@ class Csv implements \Iterator, \Countable
         // TODO: Implement count() method.
     }
 
+    /**
+     * @return string
+     */
+    protected function getRegex()
+    {
+        if (!$this->regex) {
+            $enclosure = preg_quote($this->enclosure);
+            $delimiter = preg_quote($this->delimiter);
 
+            $enclosureField = "{$enclosure}[^{$enclosure}]*(?:{$enclosure}{$enclosure}[^{$enclosure}]*)*{$enclosure}";
+            $plainField = "[^\r\n{$delimiter}]*";
+            $delimiterOrNewLine = "({$delimiter}|\r\n|\n|\r|$)";
+
+            $this->regex = "/({$enclosureField}|{$plainField}){$delimiterOrNewLine}/";
+        }
+        return $this->regex;
+    }
+
+    protected function fetchLine($handle, &$buffer)
+    {
+        $enclosure = $this->enclosure;
+
+        // fill the buffer with our max row size
+        $buffer .= fread($handle, $this->rowSize - strlen($buffer));
+        $bufferSize = strlen($buffer);
+
+        // check if we've got to the end of the file and the buffer is empty
+        if ($bufferSize === 0 and feof($handle) === true) {
+
+            // we've finished everything we can do
+            return false;
+        }
+
+        // prepare the regex
+        $regex = $this->getRegex();
+
+        $idx    = 0;
+        $row    = array();
+        $offset = 0;
+        while ($offset < $bufferSize) {
+
+            // use the regex to pull out matches
+            $matches = null;
+            $results = preg_match($regex, $buffer, $matches, PREG_OFFSET_CAPTURE, $offset);
+
+            // if we didn't get any results, or the offset doesn't match then things aren't valid
+            if ($results === 0 or $matches[0][1] !== $offset) {
+                // TODO $row, $offset, sample
+                throw new \DomainException(
+                    sprintf(
+                        'Cannot read CSV data: invalid field at character position %d',
+                        $offset + 1
+                    )
+                );
+            }
+
+            $value     = $matches[1][0];
+            $delimiter = $matches[2][0];
+            $offset    = $matches[2][1] + strlen($delimiter);
+
+            // if we've matched an enclosure then remove them
+            if (isset($value[0]) and $value[0] === $enclosure and substr($value, -1) === $enclosure) {
+                $value = substr($value, 1, -1);
+                // An enclosed field may contain escaped enclosures
+                $value = str_replace($enclosure . $enclosure, $enclosure, $value);
+            }
+
+            // store the value
+            $row[$idx++] = $value;
+
+            if ($idx > $this->maxColumns) {
+                throw new \DomainException('Cannot read CSV data: too many columns found');
+            }
+
+            // check the delimiter and break out if we've reached the end
+            switch ($delimiter) {
+                case "\r\n":
+                case "\n":
+                case "\r":
+                case '':
+                    break 2;
+            }
+        }
+
+        // shift the value we've used off the buffer
+        $buffer = substr($buffer, $offset);
+
+        // return the row
+        return $row;
+    }
 }
