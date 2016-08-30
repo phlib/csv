@@ -11,6 +11,15 @@ class Csv implements \Iterator, \Countable
     /** @var  AdapterInterface */
     protected $adapter;
 
+    /** @var  bool */
+    protected $hasHeader;
+
+    /** @var  string */
+    protected $delimiter;
+
+    /** @var  string */
+    protected $enclosure;
+
     /**
      * Csv constructor.
      * @param AdapterInterface $adapter
@@ -21,8 +30,16 @@ class Csv implements \Iterator, \Countable
     public function __construct(AdapterInterface $adapter, $hasHeader = false, $delimiter = ',', $enclosure = '"')
     {
         $this->adapter = $adapter;
+        $this->hasHeader = $hasHeader;
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
     }
 
+    /**
+     * Loads a stream from the adapter.
+     *
+     * @return resource
+     */
     protected function getStream()
     {
         if (!$this->stream) {
