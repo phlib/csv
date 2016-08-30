@@ -6,6 +6,9 @@ use Phlib\Csv\Adapter\AdapterInterface;
 
 class Csv implements \Iterator, \Countable
 {
+    const FETCH_ASSOC = 1;
+    const FETCH_NUM   = 2;
+
     protected $stream;
 
     /** @var  AdapterInterface */
@@ -20,7 +23,12 @@ class Csv implements \Iterator, \Countable
     /** @var  string */
     protected $enclosure;
 
+    /** @var  int */
     protected $maxColumns = 1000;
+
+    /** @var  int  */
+    protected $fetchMode = self::FETCH_ASSOC;
+
 
     /**
      * Csv constructor.
@@ -80,6 +88,12 @@ class Csv implements \Iterator, \Countable
      */
     public function setFetchMode($mode)
     {
+        $validModes = [self::FETCH_ASSOC, self::FETCH_NUM];
+        if (!in_array($mode, $validModes)) {
+            throw new \InvalidArgumentException('Unrecognised fetch mode requested.');
+        }
+
+        $this->fetchMode = $mode;
 
     }
 
@@ -90,7 +104,7 @@ class Csv implements \Iterator, \Countable
      */
     public function getFetchMode()
     {
-        return 0;
+        return $this->fetchMode;
     }
 
     /**
