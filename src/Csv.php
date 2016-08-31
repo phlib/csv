@@ -2,7 +2,7 @@
 namespace Phlib\Csv;
 
 
-use Phlib\Csv\Adapter\AdapterInterface;
+use Psr\Http\Message\StreamInterface;
 
 class Csv implements \Iterator, \Countable
 {
@@ -12,8 +12,8 @@ class Csv implements \Iterator, \Countable
     /** @var  resource */
     protected $stream;
 
-    /** @var  AdapterInterface */
-    protected $adapter;
+    /** @var  StreamInterface */
+    protected $streamInterface;
 
     /** @var  bool */
     protected $hasHeader;
@@ -53,36 +53,17 @@ class Csv implements \Iterator, \Countable
 
     /**
      * Csv constructor.
-     * @param AdapterInterface $adapter
+     * @param StreamInterface $stream
      * @param bool $hasHeader
      * @param string $delimiter
      * @param string $enclosure
      */
-    public function __construct(AdapterInterface $adapter, $hasHeader = false, $delimiter = ',', $enclosure = '"')
+    public function __construct(StreamInterface $stream, $hasHeader = false, $delimiter = ',', $enclosure = '"')
     {
-        $this->adapter = $adapter;
+        $this->streamInterface = $stream;
         $this->hasHeader = (bool)$hasHeader;
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;
-    }
-
-    /**
-     * Loads a stream from the adapter.
-     *
-     * @return resource
-     */
-    protected function getStream()
-    {
-        if (!$this->stream) {
-            $this->stream = $this->adapter->getStream();
-        }
-        return $this->stream;
-    }
-
-    protected function closeStream()
-    {
-        $this->adapter->closeStream();
-        $this->stream = null;
     }
 
     /**
@@ -187,7 +168,7 @@ class Csv implements \Iterator, \Countable
         }
 
         $this->position++;
-        $this->current = $this->fetchLine($this->getStream(), $this->buffer);
+        $this->current = $this->fetchLine($this->streamInterface, $this->buffer);
 
         if ($this->current === false) {
             // If there is no current record, we have no valid position
@@ -220,22 +201,17 @@ class Csv implements \Iterator, \Countable
     public function rewind()
     {
         $this->buffer   = '';
-        if ($this->stream) {
-//            rewind($this->stream);
-//            reset($this->stream);
-            $this->closeStream();
-        }
-        $stream = $this->getStream();
+        $this->streamInterface->rewind();
         $this->position = 0;
 
         $this->headers = array();
         if ($this->hasHeader()) {
-            $line = $this->fetchLine($stream, $this->buffer);
+            $line = $this->fetchLine($this->streamInterface, $this->buffer);
             if ($line !== false) {
                 $this->headers = $line;
             }
         }
-        $this->current = $this->fetchLine($stream, $this->buffer);
+        $this->current = $this->fetchLine($this->streamInterface, $this->buffer);
     }
 
     /**
@@ -244,16 +220,15 @@ class Csv implements \Iterator, \Countable
     public function count()
     {
         if (is_null($this->count)) {
-            $handle = $this->getStream();
 
             // Store the pointer position and reset the file handle
-            $position = ftell($handle);
-            rewind($handle);
+            $position = $this->streamInterface->tell();
+            $this->streamInterface->rewind();
 
             // Count the rows
             $count = 0;
             $buffer = '';
-            while ($this->fetchLine($handle, $buffer)) {
+            while ($this->fetchLine($this->streamInterface, $buffer)) {
                 $count++;
             }
 
@@ -266,7 +241,7 @@ class Csv implements \Iterator, \Countable
             }
 
             // Restore the file handle to its previous position
-            fseek($handle, $position);
+            $this->streamInterface->seek($position);
         }
         return $this->count;
     }
@@ -290,21 +265,20 @@ class Csv implements \Iterator, \Countable
     }
 
     /**
-     * @param $handle
+     * @param $stream
      * @param $buffer
      * @return array|bool
      */
-    protected function fetchLine($handle, &$buffer)
+    protected function fetchLine(StreamInterface $stream, &$buffer)
     {
         $enclosure = $this->enclosure;
 
         // fill the buffer with our max row size
-        $buffer .= fread($handle, $this->rowSize - strlen($buffer));
+        $buffer .= $stream->read($this->rowSize - strlen($buffer));
         $bufferSize = strlen($buffer);
 
         // check if we've got to the end of the file and the buffer is empty
-        if ($bufferSize === 0 and feof($handle) === true) {
-
+        if ($bufferSize === 0 and $stream->eof() === true) {
             // we've finished everything we can do
             return false;
         }

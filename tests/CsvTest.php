@@ -3,6 +3,7 @@ namespace Phlib\Csv\Tests;
 
 use Phlib\Csv\Adapter\AdapterInterface;
 use Phlib\Csv\Csv;
+use Psr\Http\Message\StreamInterface;
 
 class CsvTest extends \PHPUnit_Framework_TestCase
 {
@@ -12,7 +13,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
     {
         // Test the default value
         $maxColumns = 1000;
-        $csv = new Csv($this->getTestAdapter());
+        $csv = new Csv($this->getStreamInterface());
         $this->assertEquals($maxColumns, $csv->getMaxColumns());
 
         // Test changing the value
@@ -23,7 +24,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testMaxColumnsInvalidArgument()
     {
-        $csv = new Csv($this->getTestAdapter());
+        $csv = new Csv($this->getStreamInterface());
 
         $this->expectException(\InvalidArgumentException::class);
         $csv->setMaxColumns('Invalid');
@@ -32,7 +33,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
     public function testFetchMode()
     {
         $fetchMode = Csv::FETCH_ASSOC;
-        $csv = new Csv($this->getTestAdapter());
+        $csv = new Csv($this->getStreamInterface());
         $this->assertEquals($fetchMode, $csv->getFetchMode());
 
         $fetchMode = Csv::FETCH_NUM;
@@ -46,7 +47,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchModeInvalidArgument()
     {
-        $csv = new Csv($this->getTestAdapter());
+        $csv = new Csv($this->getStreamInterface());
 
         $this->expectException(\InvalidArgumentException::class);
         $csv->setFetchMode('Invalid');
@@ -54,7 +55,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testHasHeader()
     {
-        $emptyAdapter = $this->getTestAdapter();
+        $emptyAdapter = $this->getStreamInterface();
 
         // Default value is false
         $csv = new Csv($emptyAdapter);
@@ -69,11 +70,11 @@ class CsvTest extends \PHPUnit_Framework_TestCase
     public function testHeaders()
     {
         // Ensure headers are parsed correctly
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $expectedResult = ['email', 'name'];
         $this->assertEquals($expectedResult, $csv->headers());
 
-        $csv = new Csv($this->getTestCsvAdapter(), false);
+        $csv = new Csv($this->getTestCsvStreamInterface(), false);
         $expectedResult = [];
         $this->assertEquals($expectedResult, $csv->headers());
     }
@@ -81,7 +82,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testCurrent()
     {
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         // Initial call will return the first record
         $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com'];
@@ -93,7 +94,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testNext()
     {
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         // Calling next before the iterator is initialised will set the pointer to the first record
         $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com'];
@@ -112,7 +113,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testKey()
     {
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         $expectedValue = 0;
         $this->assertEquals($expectedValue, $csv->key());
@@ -128,7 +129,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testValid()
     {
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         $csv->current();
         $this->assertTrue($csv->valid());
@@ -142,7 +143,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testRewind()
     {
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $csv->next();
         $csv->next();
         $csv->rewind();
@@ -153,7 +154,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testCount()
     {
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $expectedCount = 2;
         $this->assertEquals($expectedCount, $csv->count());
 
@@ -163,7 +164,7 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
 
         // Create a new CSV to reset the count
-        $csv = new Csv($this->getTestCsvAdapter(), true);
+        $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         // Count should still be valid when the file pointer is not at the first record
         $csv->next();
@@ -177,32 +178,52 @@ class CsvTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return AdapterInterface
+     * @return StreamInterface
      */
-    protected function getTestCsvAdapter()
+    protected function getTestCsvStreamInterface()
     {
         $csv = <<<CSV
 email,name
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        return $this->getTestAdapter($csv);
+        return $this->getStreamInterface($csv);
     }
 
     /**
      * @param string $data
-     * @return AdapterInterface
+     * @return StreamInterface
      */
-    protected function getTestAdapter($data = '')
+    protected function getStreamInterface($data = '')
     {
         $stream = $this->createStream($data);
+        $streamInterface = $this->getMockStreamInterface($stream);
+        return $streamInterface;
+    }
 
-        $adapter = $this->createMock(AdapterInterface::class);
-        $adapter->method('getStream')->willReturn($stream);
-        $adapter->method('closeStream')->will($this->returnCallback(function() use ($stream) {
+    /**
+     * @param $stream
+     * @return StreamInterface
+     */
+    protected function getMockStreamInterface($stream)
+    {
+        $streamInterface = $this->createMock(StreamInterface::class);
+        $streamInterface->method('rewind')->will($this->returnCallback(function() use ($stream) {
             rewind($stream);
         }));
+        $streamInterface->method('tell')->will($this->returnCallback(function() use ($stream) {
+            return ftell($stream);
+        }));
+        $streamInterface->method('seek')->will($this->returnCallback(function($offset) use ($stream) {
+            fseek($stream, $offset);
+        }));
+        $streamInterface->method('read')->will($this->returnCallback(function($length) use ($stream) {
+            return fread($stream, $length);
+        }));
+        $streamInterface->method('eof')->will($this->returnCallback(function() use ($stream) {
+            return feof($stream);
+        }));
+        return $streamInterface;
 
-        return $adapter;
     }
 }
