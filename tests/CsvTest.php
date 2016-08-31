@@ -154,6 +154,10 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testCount()
     {
+        $csv = new Csv($this->getTestCsvStreamInterface());
+        $expectedCount = 3;
+        $this->assertEquals($expectedCount, $csv->count());
+
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $expectedCount = 2;
         $this->assertEquals($expectedCount, $csv->count());
@@ -175,6 +179,33 @@ class CsvTest extends \PHPUnit_Framework_TestCase
         // After calling count, the CSV should still be aware of it's position
         $expectedData = ['name' => 'Luke', 'email' => 'lr@example.com'];
         $this->assertEquals($expectedData, $csv->current());
+    }
+
+    public function testMoreHeadersThanRowColumns()
+    {
+        // Additional missing fields from the headers will be defaulted
+        $csvData = <<<CSV
+email,name,phone
+aw@example.com,Adam
+lr@example.com,Luke
+CSV;
+        $csv = new Csv($this->getStreamInterface($csvData), true);
+        $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com', 'phone' => null];
+        $this->assertEquals($expectedData, $csv->current());
+    }
+
+    public function testMoreRowColumnsThanHeaders()
+    {
+        // Additional fields than the headers will be ignored
+        $csvData = <<<CSV
+email,name
+aw@example.com,Adam,123
+lr@example.com,Luke,123,456
+CSV;
+        $csv = new Csv($this->getStreamInterface($csvData), true);
+
+        $this->expectException(\DomainException::class);
+        $csv->current();
     }
 
     /**
@@ -224,6 +255,5 @@ CSV;
             return feof($stream);
         }));
         return $streamInterface;
-
     }
 }

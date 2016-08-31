@@ -9,11 +9,8 @@ class Csv implements \Iterator, \Countable
     const FETCH_ASSOC = 1;
     const FETCH_NUM   = 2;
 
-    /** @var  resource */
-    protected $stream;
-
     /** @var  StreamInterface */
-    protected $streamInterface;
+    protected $stream;
 
     /** @var  bool */
     protected $hasHeader;
@@ -60,7 +57,7 @@ class Csv implements \Iterator, \Countable
      */
     public function __construct(StreamInterface $stream, $hasHeader = false, $delimiter = ',', $enclosure = '"')
     {
-        $this->streamInterface = $stream;
+        $this->stream = $stream;
         $this->hasHeader = (bool)$hasHeader;
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;
@@ -151,7 +148,19 @@ class Csv implements \Iterator, \Countable
 
         $current = $this->current;
         if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode == self::FETCH_ASSOC) {
-            $current = array_combine($this->headers, $current);
+
+            $headers = $this->headers;
+
+            // PHP7 Spaceship Operator could work here
+            if (count($headers) < count($current)) {
+                throw new \DomainException('Row has more columns than headers');
+
+            } elseif (count($headers) > count($current)) {
+                // Headers are too long - pad the columns
+                $current = array_pad($current, count($headers), null);
+            }
+
+            $current = array_combine($headers, $current);
         }
 
         return $current;
@@ -168,7 +177,7 @@ class Csv implements \Iterator, \Countable
         }
 
         $this->position++;
-        $this->current = $this->fetchLine($this->streamInterface, $this->buffer);
+        $this->current = $this->fetchLine($this->stream, $this->buffer);
 
         if ($this->current === false) {
             // If there is no current record, we have no valid position
@@ -201,17 +210,17 @@ class Csv implements \Iterator, \Countable
     public function rewind()
     {
         $this->buffer   = '';
-        $this->streamInterface->rewind();
+        $this->stream->rewind();
         $this->position = 0;
 
         $this->headers = array();
         if ($this->hasHeader()) {
-            $line = $this->fetchLine($this->streamInterface, $this->buffer);
+            $line = $this->fetchLine($this->stream, $this->buffer);
             if ($line !== false) {
                 $this->headers = $line;
             }
         }
-        $this->current = $this->fetchLine($this->streamInterface, $this->buffer);
+        $this->current = $this->fetchLine($this->stream, $this->buffer);
     }
 
     /**
@@ -222,13 +231,13 @@ class Csv implements \Iterator, \Countable
         if (is_null($this->count)) {
 
             // Store the pointer position and reset the file handle
-            $position = $this->streamInterface->tell();
-            $this->streamInterface->rewind();
+            $position = $this->stream->tell();
+            $this->stream->rewind();
 
             // Count the rows
             $count = 0;
             $buffer = '';
-            while ($this->fetchLine($this->streamInterface, $buffer)) {
+            while ($this->fetchLine($this->stream, $buffer)) {
                 $count++;
             }
 
@@ -241,7 +250,7 @@ class Csv implements \Iterator, \Countable
             }
 
             // Restore the file handle to its previous position
-            $this->streamInterface->seek($position);
+            $this->stream->seek($position);
         }
         return $this->count;
     }
