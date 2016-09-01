@@ -1,6 +1,6 @@
 {
     "name": "phlib/csv",
-    "description": "A CSV parsing library",
+    "description": "A CSV parsing library; Prevents out of memory errors when parsing large files without a closing string delimiter",
     "keywords": ["csv"],
     "license": "MIT",
     "require": {
