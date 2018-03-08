@@ -292,12 +292,21 @@ class Csv implements \Iterator, \Countable
             return false;
         }
 
+        // Check for UTF-8 BOM and remove
+        // > The Unicode Standard permits the BOM in UTF-8, but does not require or recommend its use.
+        // > Byte order has no meaning in UTF-8, so its only use in UTF-8 is to
+        // > signal at the start that the text stream is encoded in UTF-8.
+        // > https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
+        $offset = 0;
+        if (substr($buffer, 0, 3) == "\xEF\xBB\xBF") {
+            $offset = 3;
+        }
+
         // prepare the regex
         $regex = $this->getRegex();
 
-        $idx    = 0;
-        $row    = array();
-        $offset = 0;
+        $idx = 0;
+        $row = array();
         while ($offset < $bufferSize) {
 
             // use the regex to pull out matches

@@ -1,7 +1,6 @@
 <?php
 namespace Phlib\Csv\Tests;
 
-use Phlib\Csv\Adapter\AdapterInterface;
 use Phlib\Csv\Csv;
 use Psr\Http\Message\StreamInterface;
 
@@ -206,6 +205,23 @@ CSV;
 
         $this->expectException(\DomainException::class);
         $csv->current();
+    }
+
+    public function testStartsWithBomb()
+    {
+        // Additional fields than the headers will be ignored
+        $csvData = <<<CSV
+\xEF\xBB\xBFemail,name
+aw@example.com,Adam
+lr@example.com,Luke
+CSV;
+        $csv = new Csv($this->getStreamInterface($csvData), true);
+
+        $expected = [
+            'email' => 'aw@example.com',
+            'name'  => 'Adam'
+        ];
+        $this->assertSame($expected, $csv->current());
     }
 
     /**
