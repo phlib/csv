@@ -3,9 +3,10 @@ namespace Phlib\Csv\Tests;
 
 use function GuzzleHttp\Psr7\stream_for;
 use Phlib\Csv\Csv;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 
-class CsvTest extends \PHPUnit_Framework_TestCase
+class CsvTest extends TestCase
 {
     public function testMaxColumns()
     {
