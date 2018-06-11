@@ -28,7 +28,7 @@ class CsvTest extends TestCase
         $csv = new Csv(stream_for(''));
 
         $this->expectException(\InvalidArgumentException::class);
-        $csv->setMaxColumns('Invalid');
+        $csv->setMaxColumns(-1);
     }
 
     public function testFetchMode()
@@ -51,7 +51,7 @@ class CsvTest extends TestCase
         $csv = new Csv(stream_for(''));
 
         $this->expectException(\InvalidArgumentException::class);
-        $csv->setFetchMode('Invalid');
+        $csv->setFetchMode(3);
     }
 
     public function testHasHeader()
