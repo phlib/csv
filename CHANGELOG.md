@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - CHANGELOG.md
+### Removed
+- Drop support for PHP 5.x as it is no longer
+[supported](https://php.net/supported-versions.php) by the PHP project
 
 ## [1.0.1] - 2018-03-08
 ### Fixed
