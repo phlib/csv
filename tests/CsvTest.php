@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Phlib\Csv\Tests;
 
 use function GuzzleHttp\Psr7\stream_for;
