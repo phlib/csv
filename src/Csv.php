@@ -206,7 +206,7 @@ class Csv implements \Iterator, \Countable
         $this->stream->rewind();
         $this->position = 0;
 
-        $this->headers = array();
+        $this->headers = [];
         if ($this->hasHeader()) {
             $line = $this->fetchLine($this->stream, $this->buffer);
             if ($line !== false) {
@@ -299,7 +299,7 @@ class Csv implements \Iterator, \Countable
         $regex = $this->getRegex();
 
         $idx = 0;
-        $row = array();
+        $row = [];
         while ($offset < $bufferSize) {
 
             // use the regex to pull out matches
