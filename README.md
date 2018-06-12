@@ -20,7 +20,7 @@ $ composer require phlib/csv
 ## Usage
 
 ```php
-$stream = stream_for(fopen($filename, 'r'));
+$stream = stream_for(fopen($filename, 'r')); // Must be a *seekable* stream
 $csv = new \Phlib\Csv($stream);
 foreach ($csv as $row) {
     print_r($row);

@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - CHANGELOG.md
 - PHP 7 type declarations for method parameters and return values
+### Changed
+- Throw `InvalidArgumentException` in construct when provided stream is not
+seekable, rather than later in methods which access the stream
 ### Removed
 - Drop support for PHP 5.x and PHP 7.0 as they are no longer
 [actively supported](https://php.net/supported-versions.php) by the PHP project
