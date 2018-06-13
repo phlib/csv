@@ -67,7 +67,7 @@ class Csv implements \Iterator, \Countable
         return $this->maxColumns;
     }
 
-    public function setMaxColumns(int $maxColumns)
+    public function setMaxColumns(int $maxColumns): void
     {
         $options = ['options' => ['min_range' => 1, 'max_range' => PHP_INT_MAX]];
         $invalid = (filter_var($maxColumns, FILTER_VALIDATE_INT, $options) === false);
@@ -78,13 +78,7 @@ class Csv implements \Iterator, \Countable
         $this->maxColumns = (int)$maxColumns;
     }
 
-    /**
-     * Set the fetch mode.
-     *
-     * @param integer $mode
-     * @return void
-     */
-    public function setFetchMode(int $mode)
+    public function setFetchMode(int $mode): void
     {
         $validModes = [self::FETCH_ASSOC, self::FETCH_NUM];
         if (!in_array($mode, $validModes)) {
@@ -95,31 +89,16 @@ class Csv implements \Iterator, \Countable
 
     }
 
-    /**
-     * Get the fetch mode.
-     *
-     * @return int
-     */
     public function getFetchMode(): int
     {
         return $this->fetchMode;
     }
 
-    /**
-     * Returns true if the csv data has headers, false otherwise.
-     *
-     * @return boolean
-     */
     public function hasHeader(): bool
     {
         return $this->hasHeader;
     }
 
-    /**
-     * Returns array of the headers, empty if no headers
-     *
-     * @return array Headers
-     */
     public function headers(): array
     {
         if ($this->headers === null) {
@@ -162,7 +141,7 @@ class Csv implements \Iterator, \Countable
     /**
      * @inheritdoc
      */
-    public function next()
+    public function next(): void
     {
         if ($this->current === null) {
             $this->rewind();
@@ -200,7 +179,7 @@ class Csv implements \Iterator, \Countable
     /**
      * @inheritdoc
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->buffer   = '';
         $this->stream->rewind();
@@ -248,9 +227,6 @@ class Csv implements \Iterator, \Countable
         return $this->count;
     }
 
-    /**
-     * @return string
-     */
     protected function getRegex(): string
     {
         if (!$this->regex) {
@@ -267,8 +243,8 @@ class Csv implements \Iterator, \Countable
     }
 
     /**
-     * @param $stream
-     * @param $buffer
+     * @param StreamInterface $stream
+     * @param string $buffer
      * @return array|bool
      */
     protected function fetchLine(StreamInterface $stream, string &$buffer)
