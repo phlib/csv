@@ -57,7 +57,7 @@ class Csv implements \Iterator, \Countable
         string $enclosure = '"'
     ) {
         $this->stream = $stream;
-        $this->hasHeader = (bool)$hasHeader;
+        $this->hasHeader = $hasHeader;
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;
     }
@@ -75,7 +75,7 @@ class Csv implements \Iterator, \Countable
             throw new \InvalidArgumentException("Invalid max columns, $maxColumns");
         }
 
-        $this->maxColumns = (int)$maxColumns;
+        $this->maxColumns = $maxColumns;
     }
 
     public function setFetchMode(int $mode): void
