@@ -1,18 +1,20 @@
 <?php
+declare(strict_types=1);
+
 namespace Phlib\Csv\Tests;
 
+use function GuzzleHttp\Psr7\stream_for;
 use Phlib\Csv\Csv;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 
-class CsvTest extends \PHPUnit_Framework_TestCase
+class CsvTest extends TestCase
 {
-    use CreateStreamTrait;
-
     public function testMaxColumns()
     {
         // Test the default value
         $maxColumns = 1000;
-        $csv = new Csv($this->getStreamInterface());
+        $csv = new Csv(stream_for(''));
         $this->assertEquals($maxColumns, $csv->getMaxColumns());
 
         // Test changing the value
@@ -23,16 +25,16 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testMaxColumnsInvalidArgument()
     {
-        $csv = new Csv($this->getStreamInterface());
+        $csv = new Csv(stream_for(''));
 
         $this->expectException(\InvalidArgumentException::class);
-        $csv->setMaxColumns('Invalid');
+        $csv->setMaxColumns(-1);
     }
 
     public function testFetchMode()
     {
         $fetchMode = Csv::FETCH_ASSOC;
-        $csv = new Csv($this->getStreamInterface());
+        $csv = new Csv(stream_for(''));
         $this->assertEquals($fetchMode, $csv->getFetchMode());
 
         $fetchMode = Csv::FETCH_NUM;
@@ -46,15 +48,15 @@ class CsvTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchModeInvalidArgument()
     {
-        $csv = new Csv($this->getStreamInterface());
+        $csv = new Csv(stream_for(''));
 
         $this->expectException(\InvalidArgumentException::class);
-        $csv->setFetchMode('Invalid');
+        $csv->setFetchMode(3);
     }
 
     public function testHasHeader()
     {
-        $emptyAdapter = $this->getStreamInterface();
+        $emptyAdapter = stream_for('');
 
         // Default value is false
         $csv = new Csv($emptyAdapter);
@@ -188,7 +190,7 @@ email,name,phone
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        $csv = new Csv($this->getStreamInterface($csvData), true);
+        $csv = new Csv(stream_for($csvData), true);
         $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com', 'phone' => null];
         $this->assertEquals($expectedData, $csv->current());
     }
@@ -201,7 +203,7 @@ email,name
 aw@example.com,Adam,123
 lr@example.com,Luke,123,456
 CSV;
-        $csv = new Csv($this->getStreamInterface($csvData), true);
+        $csv = new Csv(stream_for($csvData), true);
 
         $this->expectException(\DomainException::class);
         $csv->current();
@@ -215,7 +217,7 @@ CSV;
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        $csv = new Csv($this->getStreamInterface($csvData), true);
+        $csv = new Csv(stream_for($csvData), true);
 
         $expected = [
             'email' => 'aw@example.com',
@@ -234,42 +236,6 @@ email,name
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        return $this->getStreamInterface($csv);
-    }
-
-    /**
-     * @param string $data
-     * @return StreamInterface
-     */
-    protected function getStreamInterface($data = '')
-    {
-        $stream = $this->createStream($data);
-        $streamInterface = $this->getMockStreamInterface($stream);
-        return $streamInterface;
-    }
-
-    /**
-     * @param $stream
-     * @return StreamInterface
-     */
-    protected function getMockStreamInterface($stream)
-    {
-        $streamInterface = $this->createMock(StreamInterface::class);
-        $streamInterface->method('rewind')->will($this->returnCallback(function() use ($stream) {
-            rewind($stream);
-        }));
-        $streamInterface->method('tell')->will($this->returnCallback(function() use ($stream) {
-            return ftell($stream);
-        }));
-        $streamInterface->method('seek')->will($this->returnCallback(function($offset) use ($stream) {
-            fseek($stream, $offset);
-        }));
-        $streamInterface->method('read')->will($this->returnCallback(function($length) use ($stream) {
-            return fread($stream, $length);
-        }));
-        $streamInterface->method('eof')->will($this->returnCallback(function() use ($stream) {
-            return feof($stream);
-        }));
-        return $streamInterface;
+        return stream_for($csv);
     }
 }

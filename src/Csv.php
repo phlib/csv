@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Phlib\Csv;
 
 
@@ -48,33 +50,24 @@ class Csv implements \Iterator, \Countable
     /** @var  int */
     protected $count;
 
-    /**
-     * Csv constructor.
-     * @param StreamInterface $stream
-     * @param bool $hasHeader
-     * @param string $delimiter
-     * @param string $enclosure
-     */
-    public function __construct(StreamInterface $stream, $hasHeader = false, $delimiter = ',', $enclosure = '"')
-    {
+    public function __construct(
+        StreamInterface $stream,
+        bool $hasHeader = false,
+        string $delimiter = ',',
+        string $enclosure = '"'
+    ) {
         $this->stream = $stream;
-        $this->hasHeader = (bool)$hasHeader;
+        $this->hasHeader = $hasHeader;
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;
     }
 
-    /**
-     * @return int
-     */
-    public function getMaxColumns()
+    public function getMaxColumns(): int
     {
         return $this->maxColumns;
     }
 
-    /**
-     * @param int $maxColumns
-     */
-    public function setMaxColumns($maxColumns)
+    public function setMaxColumns(int $maxColumns): void
     {
         $options = ['options' => ['min_range' => 1, 'max_range' => PHP_INT_MAX]];
         $invalid = (filter_var($maxColumns, FILTER_VALIDATE_INT, $options) === false);
@@ -82,16 +75,10 @@ class Csv implements \Iterator, \Countable
             throw new \InvalidArgumentException("Invalid max columns, $maxColumns");
         }
 
-        $this->maxColumns = (int)$maxColumns;
+        $this->maxColumns = $maxColumns;
     }
 
-    /**
-     * Set the fetch mode.
-     *
-     * @param integer $mode
-     * @return void
-     */
-    public function setFetchMode($mode)
+    public function setFetchMode(int $mode): void
     {
         $validModes = [self::FETCH_ASSOC, self::FETCH_NUM];
         if (!in_array($mode, $validModes)) {
@@ -102,32 +89,17 @@ class Csv implements \Iterator, \Countable
 
     }
 
-    /**
-     * Get the fetch mode.
-     *
-     * @return int
-     */
-    public function getFetchMode()
+    public function getFetchMode(): int
     {
         return $this->fetchMode;
     }
 
-    /**
-     * Returns true if the csv data has headers, false otherwise.
-     *
-     * @return boolean
-     */
-    public function hasHeader()
+    public function hasHeader(): bool
     {
         return $this->hasHeader;
     }
 
-    /**
-     * Returns array of the headers, empty if no headers
-     *
-     * @return array Headers
-     */
-    public function headers()
+    public function headers(): array
     {
         if ($this->headers === null) {
             // Headers a loaded as part of the rewind method
@@ -169,7 +141,7 @@ class Csv implements \Iterator, \Countable
     /**
      * @inheritdoc
      */
-    public function next()
+    public function next(): void
     {
         if ($this->current === null) {
             $this->rewind();
@@ -199,7 +171,7 @@ class Csv implements \Iterator, \Countable
     /**
      * @inheritdoc
      */
-    public function valid()
+    public function valid(): bool
     {
         return ($this->current !== false);
     }
@@ -207,13 +179,13 @@ class Csv implements \Iterator, \Countable
     /**
      * @inheritdoc
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->buffer   = '';
         $this->stream->rewind();
         $this->position = 0;
 
-        $this->headers = array();
+        $this->headers = [];
         if ($this->hasHeader()) {
             $line = $this->fetchLine($this->stream, $this->buffer);
             if ($line !== false) {
@@ -226,7 +198,7 @@ class Csv implements \Iterator, \Countable
     /**
      * @inheritdoc
      */
-    public function count()
+    public function count(): int
     {
         if (is_null($this->count)) {
 
@@ -255,10 +227,7 @@ class Csv implements \Iterator, \Countable
         return $this->count;
     }
 
-    /**
-     * @return string
-     */
-    protected function getRegex()
+    protected function getRegex(): string
     {
         if (!$this->regex) {
             $enclosure = preg_quote($this->enclosure);
@@ -274,11 +243,11 @@ class Csv implements \Iterator, \Countable
     }
 
     /**
-     * @param $stream
-     * @param $buffer
+     * @param StreamInterface $stream
+     * @param string $buffer
      * @return array|bool
      */
-    protected function fetchLine(StreamInterface $stream, &$buffer)
+    protected function fetchLine(StreamInterface $stream, string &$buffer)
     {
         $enclosure = $this->enclosure;
 
@@ -306,7 +275,7 @@ class Csv implements \Iterator, \Countable
         $regex = $this->getRegex();
 
         $idx = 0;
-        $row = array();
+        $row = [];
         while ($offset < $bufferSize) {
 
             // use the regex to pull out matches

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - CHANGELOG.md
+- PHP 7 type declarations for method parameters and return values
+### Removed
+- Drop support for PHP 5.x and PHP 7.0 as they are no longer
+[actively supported](https://php.net/supported-versions.php) by the PHP project
 
 ## [1.0.1] - 2018-03-08
 ### Fixed
