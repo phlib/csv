@@ -10,6 +10,19 @@ use Psr\Http\Message\StreamInterface;
 
 class CsvTest extends TestCase
 {
+    public function testStreamNotSeekable()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('not seekable');
+
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->expects($this->once())
+            ->method('isSeekable')
+            ->willReturn(false);
+
+        new Csv($stream);
+    }
+
     public function testMaxColumns()
     {
         // Test the default value

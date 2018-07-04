@@ -56,6 +56,10 @@ class Csv implements \Iterator, \Countable
         string $delimiter = ',',
         string $enclosure = '"'
     ) {
+        if (!$stream->isSeekable()) {
+            throw new \InvalidArgumentException('Stream is not seekable');
+        }
+
         $this->stream = $stream;
         $this->hasHeader = $hasHeader;
         $this->delimiter = $delimiter;
