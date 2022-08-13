@@ -117,7 +117,7 @@ class Csv implements \Iterator, \Countable
     public function setFetchMode(int $mode): void
     {
         $validModes = [self::FETCH_ASSOC, self::FETCH_NUM];
-        if (!in_array($mode, $validModes)) {
+        if (!in_array($mode, $validModes, true)) {
             throw new \InvalidArgumentException('Unrecognised fetch mode requested.');
         }
 
@@ -151,7 +151,7 @@ class Csv implements \Iterator, \Countable
         }
 
         $current = $this->current;
-        if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode == self::FETCH_ASSOC) {
+        if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode === self::FETCH_ASSOC) {
             $headers = $this->headers;
 
             // PHP7 Spaceship Operator could work here
@@ -280,7 +280,7 @@ class Csv implements \Iterator, \Countable
         // > signal at the start that the text stream is encoded in UTF-8.
         // > https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
         $offset = 0;
-        if (substr($buffer, 0, 3) == "\xEF\xBB\xBF") {
+        if (substr($buffer, 0, 3) === "\xEF\xBB\xBF") {
             $offset = 3;
         }
 
