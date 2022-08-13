@@ -15,67 +15,67 @@ class Csv implements \Iterator, \Countable
     /**
      * @var StreamInterface
      */
-    protected $stream;
+    private $stream;
 
     /**
      * @var bool
      */
-    protected $hasHeader;
+    private $hasHeader;
 
     /**
      * @var string
      */
-    protected $delimiter;
+    private $delimiter;
 
     /**
      * @var string
      */
-    protected $enclosure;
+    private $enclosure;
 
     /**
      * @var int
      */
-    protected $maxColumns = 1000;
+    private $maxColumns = 1000;
 
     /**
      * @var int
      */
-    protected $fetchMode = self::FETCH_ASSOC;
+    private $fetchMode = self::FETCH_ASSOC;
 
     /**
      * @var string
      */
-    protected $regex;
+    private $regex;
 
     /**
      * @var int
      */
-    protected $rowSize = 24576;
+    private $rowSize = 24576;
 
     /**
      * @var array
      */
-    protected $headers;
+    private $headers;
 
     /**
      * @var string
      */
-    protected $buffer = '';
+    private $buffer = '';
 
     /**
      * @var int
      */
-    protected $position = 0;
+    private $position = 0;
 
     /**
      * @var array
      */
-    protected $current;
+    private $current;
 
     /**
      * @var int
      */
-    protected $count;
+    private $count;
 
     public function __construct(
         StreamInterface $stream,
@@ -242,7 +242,7 @@ class Csv implements \Iterator, \Countable
         return $this->count;
     }
 
-    protected function getRegex(): string
+    private function getRegex(): string
     {
         if (!$this->regex) {
             $enclosure = preg_quote($this->enclosure);
@@ -260,7 +260,7 @@ class Csv implements \Iterator, \Countable
     /**
      * @return array|bool
      */
-    protected function fetchLine(StreamInterface $stream, string &$buffer)
+    private function fetchLine(StreamInterface $stream, string &$buffer)
     {
         $enclosure = $this->enclosure;
 

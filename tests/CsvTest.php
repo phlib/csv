@@ -262,7 +262,7 @@ CSV;
     /**
      * @return StreamInterface
      */
-    protected function getTestCsvStreamInterface()
+    private function getTestCsvStreamInterface()
     {
         $csv = <<<CSV
 email,name
