@@ -1,12 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Phlib\Csv\Tests;
 
-use function GuzzleHttp\Psr7\stream_for;
 use Phlib\Csv\Csv;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use function GuzzleHttp\Psr7\stream_for;
 
 class CsvTest extends TestCase
 {
@@ -80,7 +81,6 @@ class CsvTest extends TestCase
         $this->assertTrue($csv->hasHeader());
     }
 
-
     public function testHeaders()
     {
         // Ensure headers are parsed correctly
@@ -93,13 +93,15 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedResult, $csv->headers());
     }
 
-
     public function testCurrent()
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         // Initial call will return the first record
-        $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com'];
+        $expectedData = [
+            'name' => 'Adam',
+            'email' => 'aw@example.com',
+        ];
         $this->assertEquals($expectedData, $csv->current());
 
         // The same data should be returned on subsequent calls to current
@@ -111,12 +113,18 @@ class CsvTest extends TestCase
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         // Calling next before the iterator is initialised will set the pointer to the first record
-        $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com'];
+        $expectedData = [
+            'name' => 'Adam',
+            'email' => 'aw@example.com',
+        ];
         $csv->next();
         $this->assertEquals($expectedData, $csv->current());
 
         // Subsequent calls to next move the pointer to the next record
-        $expectedData = ['name' => 'Luke', 'email' => 'lr@example.com'];
+        $expectedData = [
+            'name' => 'Luke',
+            'email' => 'lr@example.com',
+        ];
         $csv->next();
         $this->assertEquals($expectedData, $csv->current());
 
@@ -162,7 +170,10 @@ class CsvTest extends TestCase
         $csv->next();
         $csv->rewind();
 
-        $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com'];
+        $expectedData = [
+            'name' => 'Adam',
+            'email' => 'aw@example.com',
+        ];
         $this->assertEquals($expectedData, $csv->current());
     }
 
@@ -177,9 +188,11 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedCount, $csv->count());
 
         // The stream should still be accessible after calling count
-        $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com'];
+        $expectedData = [
+            'name' => 'Adam',
+            'email' => 'aw@example.com',
+        ];
         $this->assertEquals($expectedData, $csv->current());
-
 
         // Create a new CSV to reset the count
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
@@ -191,7 +204,10 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedCount, $csv->count());
 
         // After calling count, the CSV should still be aware of it's position
-        $expectedData = ['name' => 'Luke', 'email' => 'lr@example.com'];
+        $expectedData = [
+            'name' => 'Luke',
+            'email' => 'lr@example.com',
+        ];
         $this->assertEquals($expectedData, $csv->current());
     }
 
@@ -204,7 +220,11 @@ aw@example.com,Adam
 lr@example.com,Luke
 CSV;
         $csv = new Csv(stream_for($csvData), true);
-        $expectedData = ['name' => 'Adam', 'email' => 'aw@example.com', 'phone' => null];
+        $expectedData = [
+            'name' => 'Adam',
+            'email' => 'aw@example.com',
+            'phone' => null,
+        ];
         $this->assertEquals($expectedData, $csv->current());
     }
 
@@ -234,7 +254,7 @@ CSV;
 
         $expected = [
             'email' => 'aw@example.com',
-            'name'  => 'Adam'
+            'name' => 'Adam',
         ];
         $this->assertSame($expected, $csv->current());
     }

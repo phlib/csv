@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Phlib\Csv\Tests;
@@ -18,7 +19,7 @@ class FactoryTest extends TestCase
 
         $expected = [
             'email' => 'aw@example.com',
-            'name'  => 'Adam'
+            'name' => 'Adam',
         ];
         $this->assertSame($expected, $csv->current());
     }
@@ -42,7 +43,7 @@ class FactoryTest extends TestCase
 
         $expected = [
             'email' => 'aw@example.com',
-            'name'  => 'Adam'
+            'name' => 'Adam',
         ];
         $this->assertSame($expected, $csv->current());
     }
