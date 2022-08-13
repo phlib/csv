@@ -12,70 +12,34 @@ class Csv implements \Iterator, \Countable
 
     public const FETCH_NUM = 2;
 
-    /**
-     * @var StreamInterface
-     */
-    private $stream;
+    private StreamInterface $stream;
+
+    private bool $hasHeader;
+
+    private string $delimiter;
+
+    private string $enclosure;
+
+    private int $maxColumns = 1000;
+
+    private int $fetchMode = self::FETCH_ASSOC;
+
+    private string $regex;
+
+    private int $rowSize = 24576;
+
+    private array $headers;
+
+    private string $buffer = '';
+
+    private ?int $position = 0;
 
     /**
-     * @var bool
-     */
-    private $hasHeader;
-
-    /**
-     * @var string
-     */
-    private $delimiter;
-
-    /**
-     * @var string
-     */
-    private $enclosure;
-
-    /**
-     * @var int
-     */
-    private $maxColumns = 1000;
-
-    /**
-     * @var int
-     */
-    private $fetchMode = self::FETCH_ASSOC;
-
-    /**
-     * @var string
-     */
-    private $regex;
-
-    /**
-     * @var int
-     */
-    private $rowSize = 24576;
-
-    /**
-     * @var array
-     */
-    private $headers;
-
-    /**
-     * @var string
-     */
-    private $buffer = '';
-
-    /**
-     * @var int
-     */
-    private $position = 0;
-
-    /**
-     * @var array
+     * @var array|false|null
      */
     private $current;
 
-    /**
-     * @var int
-     */
-    private $count;
+    private int $count;
 
     public function __construct(
         StreamInterface $stream,
@@ -136,7 +100,7 @@ class Csv implements \Iterator, \Countable
 
     public function headers(): array
     {
-        if ($this->headers === null) {
+        if (!isset($this->headers)) {
             // Headers a loaded as part of the rewind method
             $this->rewind();
         }
@@ -184,7 +148,7 @@ class Csv implements \Iterator, \Countable
         }
     }
 
-    public function key()
+    public function key(): ?int
     {
         if ($this->current === null) {
             $this->rewind();
@@ -215,7 +179,7 @@ class Csv implements \Iterator, \Countable
 
     public function count(): int
     {
-        if ($this->count === null) {
+        if (!isset($this->count)) {
 
             // Store the pointer position and reset the file handle
             $position = $this->stream->tell();
@@ -244,7 +208,7 @@ class Csv implements \Iterator, \Countable
 
     private function getRegex(): string
     {
-        if (!$this->regex) {
+        if (!isset($this->regex)) {
             $enclosure = preg_quote($this->enclosure);
             $delimiter = preg_quote($this->delimiter);
 

@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - CHANGELOG.md
-- PHP 7 type declarations for method parameters and return values
+- Type declarations have been added to all method parameters and return types
+  where possible.
 - Factory for creating instance of `Csv` from a CSV file or a zipped CSV file
 ### Changed
 - Throw `InvalidArgumentException` in construct when provided stream is not

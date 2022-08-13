@@ -11,7 +11,7 @@ use function GuzzleHttp\Psr7\stream_for;
 
 class CsvTest extends TestCase
 {
-    public function testStreamNotSeekable()
+    public function testStreamNotSeekable(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('not seekable');
@@ -24,7 +24,7 @@ class CsvTest extends TestCase
         new Csv($stream);
     }
 
-    public function testMaxColumns()
+    public function testMaxColumns(): void
     {
         // Test the default value
         $maxColumns = 1000;
@@ -37,7 +37,7 @@ class CsvTest extends TestCase
         $this->assertEquals($maxColumns, $csv->getMaxColumns());
     }
 
-    public function testMaxColumnsInvalidArgument()
+    public function testMaxColumnsInvalidArgument(): void
     {
         $csv = new Csv(stream_for(''));
 
@@ -45,7 +45,7 @@ class CsvTest extends TestCase
         $csv->setMaxColumns(-1);
     }
 
-    public function testFetchMode()
+    public function testFetchMode(): void
     {
         $fetchMode = Csv::FETCH_ASSOC;
         $csv = new Csv(stream_for(''));
@@ -60,7 +60,7 @@ class CsvTest extends TestCase
         $this->assertEquals($fetchMode, $csv->getFetchMode());
     }
 
-    public function testFetchModeInvalidArgument()
+    public function testFetchModeInvalidArgument(): void
     {
         $csv = new Csv(stream_for(''));
 
@@ -68,7 +68,7 @@ class CsvTest extends TestCase
         $csv->setFetchMode(3);
     }
 
-    public function testHasHeader()
+    public function testHasHeader(): void
     {
         $emptyAdapter = stream_for('');
 
@@ -81,7 +81,7 @@ class CsvTest extends TestCase
         $this->assertTrue($csv->hasHeader());
     }
 
-    public function testHeaders()
+    public function testHeaders(): void
     {
         // Ensure headers are parsed correctly
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
@@ -93,7 +93,7 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedResult, $csv->headers());
     }
 
-    public function testCurrent()
+    public function testCurrent(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
@@ -108,7 +108,7 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedData, $csv->current());
     }
 
-    public function testNext()
+    public function testNext(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
@@ -133,7 +133,7 @@ class CsvTest extends TestCase
         $this->assertFalse($csv->current());
     }
 
-    public function testKey()
+    public function testKey(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
@@ -149,7 +149,7 @@ class CsvTest extends TestCase
         $this->assertNull($csv->key());
     }
 
-    public function testValid()
+    public function testValid(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
@@ -163,7 +163,7 @@ class CsvTest extends TestCase
         $this->assertFalse($csv->valid());
     }
 
-    public function testRewind()
+    public function testRewind(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $csv->next();
@@ -177,7 +177,7 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedData, $csv->current());
     }
 
-    public function testCount()
+    public function testCount(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface());
         $expectedCount = 3;
@@ -211,7 +211,7 @@ class CsvTest extends TestCase
         $this->assertEquals($expectedData, $csv->current());
     }
 
-    public function testMoreHeadersThanRowColumns()
+    public function testMoreHeadersThanRowColumns(): void
     {
         // Additional missing fields from the headers will be defaulted
         $csvData = <<<CSV
@@ -228,7 +228,7 @@ CSV;
         $this->assertEquals($expectedData, $csv->current());
     }
 
-    public function testMoreRowColumnsThanHeaders()
+    public function testMoreRowColumnsThanHeaders(): void
     {
         // Additional fields than the headers will be ignored
         $csvData = <<<CSV
@@ -242,7 +242,7 @@ CSV;
         $csv->current();
     }
 
-    public function testStartsWithBomb()
+    public function testStartsWithBomb(): void
     {
         // Additional fields than the headers will be ignored
         $csvData = <<<CSV
@@ -259,10 +259,7 @@ CSV;
         $this->assertSame($expected, $csv->current());
     }
 
-    /**
-     * @return StreamInterface
-     */
-    private function getTestCsvStreamInterface()
+    private function getTestCsvStreamInterface(): StreamInterface
     {
         $csv = <<<CSV
 email,name
