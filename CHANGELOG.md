@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Throw `InvalidArgumentException` in construct when provided stream is not
 seekable, rather than later in methods which access the stream
 ### Removed
-- Drop support for PHP 5.x and PHP 7.0 as they are no longer
+- **BC break**: Removed support for PHP versions <= v7.3 as they are no longer
 [actively supported](https://php.net/supported-versions.php) by the PHP project
 
 ## [1.0.1] - 2018-03-08

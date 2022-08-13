@@ -11,8 +11,7 @@ jobs:
     strategy:
       matrix:
         php:
-          - '7.1'
-          - '7.2'
+          - '7.4'
 
     name: PHP ${{ matrix.php }} tests
 
