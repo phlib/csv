@@ -3,7 +3,7 @@
 <phpunit bootstrap="vendor/autoload.php" colors="true">
 
     <php>
-        <!--<var name="SKIP_LARGE" value="1" />-->
+        <env name="SKIP_LARGE" value="0" />
     </php>
 
     <testsuites>

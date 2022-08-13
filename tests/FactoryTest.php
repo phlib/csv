@@ -59,9 +59,8 @@ class FactoryTest extends TestCase
 
     public function testCreateFromLargeFileIsMemoryEfficient(): void
     {
-        if (isset($GLOBALS['SKIP_LARGE'])) {
+        if (getenv('SKIP_LARGE')) {
             $this->markTestSkipped('Large test skipped; SKIP_LARGE is true');
-            return;
         }
 
         $filename = __DIR__ . '/_files/large.csv';
@@ -83,9 +82,8 @@ class FactoryTest extends TestCase
 
     public function testCreateFromLargeZipFileIsMemoryEfficient(): void
     {
-        if (isset($GLOBALS['SKIP_LARGE'])) {
+        if (getenv('SKIP_LARGE')) {
             $this->markTestSkipped('Large test skipped; SKIP_LARGE is true');
-            return;
         }
 
         $filename = __DIR__ . '/_files/large.csv';
