@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Phlib\Csv;
@@ -12,7 +13,7 @@ class Factory
         bool $hasHeader = false,
         string $delimiter = ',',
         string $enclosure = '"'
-    ) {
+    ): Csv {
         $resource = @fopen($filename, 'r');
         if (!$resource) {
             $error = error_get_last();
@@ -33,7 +34,7 @@ class Factory
         bool $hasHeader = false,
         string $delimiter = ',',
         string $enclosure = '"'
-    ) {
+    ): Csv {
         $zip = new \ZipArchive();
         if ($zip->open($filename) !== true) {
             throw new \RuntimeException(

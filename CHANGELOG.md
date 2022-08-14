@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - CHANGELOG.md
-- PHP 7 type declarations for method parameters and return values
+- Add support for PHP v8
+- Type declarations have been added to all method parameters and return types
+  where possible.
 - Factory for creating instance of `Csv` from a CSV file or a zipped CSV file
 ### Changed
 - Throw `InvalidArgumentException` in construct when provided stream is not
 seekable, rather than later in methods which access the stream
+- **BC break**: Reduce visibility of internal methods and properties. These
+  members are not part of the public API. No impact to standard use of this
+  package. If an implementation has a use case which needs to override these
+  members, please submit a pull request explaining the change.
 ### Removed
-- Drop support for PHP 5.x and PHP 7.0 as they are no longer
+- **BC break**: Removed support for PHP versions <= v7.3 as they are no longer
 [actively supported](https://php.net/supported-versions.php) by the PHP project
 
 ## [1.0.1] - 2018-03-08

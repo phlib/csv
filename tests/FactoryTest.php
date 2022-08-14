@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Phlib\Csv\Tests;
@@ -8,22 +9,22 @@ use PHPUnit\Framework\TestCase;
 
 class FactoryTest extends TestCase
 {
-    public function testCreateFromFile()
+    public function testCreateFromFile(): void
     {
         $filename = __DIR__ . '/_files/sample.csv';
         $csv = Factory::createFromFile($filename, true);
 
         $expectedResult = ['email', 'name'];
-        $this->assertEquals($expectedResult, $csv->headers());
+        static::assertEquals($expectedResult, $csv->headers());
 
         $expected = [
             'email' => 'aw@example.com',
-            'name'  => 'Adam'
+            'name' => 'Adam',
         ];
-        $this->assertSame($expected, $csv->current());
+        static::assertSame($expected, $csv->current());
     }
 
-    public function testCreateFromFileNotExists()
+    public function testCreateFromFileNotExists(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to open handle');
@@ -32,22 +33,22 @@ class FactoryTest extends TestCase
         Factory::createFromFile($filename);
     }
 
-    public function testCreateFromZipFile()
+    public function testCreateFromZipFile(): void
     {
         $filename = __DIR__ . '/_files/sample.csv.zip';
         $csv = Factory::createFromZipFile($filename, true);
 
         $expectedResult = ['email', 'name'];
-        $this->assertEquals($expectedResult, $csv->headers());
+        static::assertEquals($expectedResult, $csv->headers());
 
         $expected = [
             'email' => 'aw@example.com',
-            'name'  => 'Adam'
+            'name' => 'Adam',
         ];
-        $this->assertSame($expected, $csv->current());
+        static::assertSame($expected, $csv->current());
     }
 
-    public function testCreateFromZipFileNotExists()
+    public function testCreateFromZipFileNotExists(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to open Zip file');
@@ -56,11 +57,10 @@ class FactoryTest extends TestCase
         Factory::createFromZipFile($filename);
     }
 
-    public function testCreateFromLargeFileIsMemoryEfficient()
+    public function testCreateFromLargeFileIsMemoryEfficient(): void
     {
-        if (isset($GLOBALS['SKIP_LARGE'])) {
-            $this->markTestSkipped('Large test skipped; SKIP_LARGE is true');
-            return;
+        if (getenv('SKIP_LARGE')) {
+            static::markTestSkipped('Large test skipped; SKIP_LARGE is true');
         }
 
         $filename = __DIR__ . '/_files/large.csv';
@@ -76,15 +76,14 @@ class FactoryTest extends TestCase
             Factory::createFromFile($filename);
         } finally {
             unlink($filename);
-            $this->assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
+            static::assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
         }
     }
 
-    public function testCreateFromLargeZipFileIsMemoryEfficient()
+    public function testCreateFromLargeZipFileIsMemoryEfficient(): void
     {
-        if (isset($GLOBALS['SKIP_LARGE'])) {
-            $this->markTestSkipped('Large test skipped; SKIP_LARGE is true');
-            return;
+        if (getenv('SKIP_LARGE')) {
+            static::markTestSkipped('Large test skipped; SKIP_LARGE is true');
         }
 
         $filename = __DIR__ . '/_files/large.csv';
@@ -108,7 +107,7 @@ class FactoryTest extends TestCase
             Factory::createFromZipFile($zipName);
         } finally {
             unlink($zipName);
-            $this->assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
+            static::assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
         }
     }
 }

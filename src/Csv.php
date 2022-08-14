@@ -1,54 +1,45 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Phlib\Csv;
-
 
 use Psr\Http\Message\StreamInterface;
 
 class Csv implements \Iterator, \Countable
 {
-    const FETCH_ASSOC = 1;
-    const FETCH_NUM   = 2;
+    public const FETCH_ASSOC = 1;
 
-    /** @var  StreamInterface */
-    protected $stream;
+    public const FETCH_NUM = 2;
 
-    /** @var  bool */
-    protected $hasHeader;
+    private StreamInterface $stream;
 
-    /** @var  string */
-    protected $delimiter;
+    private bool $hasHeader;
 
-    /** @var  string */
-    protected $enclosure;
+    private string $delimiter;
 
-    /** @var  int */
-    protected $maxColumns = 1000;
+    private string $enclosure;
 
-    /** @var  int  */
-    protected $fetchMode = self::FETCH_ASSOC;
+    private int $maxColumns = 1000;
 
-    /** @var  string */
-    protected $regex;
+    private int $fetchMode = self::FETCH_ASSOC;
 
-    /** @var  int  */
-    protected $rowSize = 24576;
+    private string $regex;
 
-    /** @var  array  */
-    protected $headers;
+    private int $rowSize = 24576;
 
-    /** @var  string  */
-    protected $buffer = '';
+    private array $headers;
 
-    /** @var  int  */
-    protected $position = 0;
+    private string $buffer = '';
 
-    /** @var  array */
-    protected $current;
+    private ?int $position = 0;
 
-    /** @var  int */
-    protected $count;
+    /**
+     * @var array|false|null
+     */
+    private $current;
+
+    private int $count;
 
     public function __construct(
         StreamInterface $stream,
@@ -73,10 +64,15 @@ class Csv implements \Iterator, \Countable
 
     public function setMaxColumns(int $maxColumns): void
     {
-        $options = ['options' => ['min_range' => 1, 'max_range' => PHP_INT_MAX]];
+        $options = [
+            'options' => [
+                'min_range' => 1,
+                'max_range' => PHP_INT_MAX,
+            ],
+        ];
         $invalid = (filter_var($maxColumns, FILTER_VALIDATE_INT, $options) === false);
         if ($invalid) {
-            throw new \InvalidArgumentException("Invalid max columns, $maxColumns");
+            throw new \InvalidArgumentException("Invalid max columns, {$maxColumns}");
         }
 
         $this->maxColumns = $maxColumns;
@@ -85,12 +81,11 @@ class Csv implements \Iterator, \Countable
     public function setFetchMode(int $mode): void
     {
         $validModes = [self::FETCH_ASSOC, self::FETCH_NUM];
-        if (!in_array($mode, $validModes)) {
+        if (!in_array($mode, $validModes, true)) {
             throw new \InvalidArgumentException('Unrecognised fetch mode requested.');
         }
 
         $this->fetchMode = $mode;
-
     }
 
     public function getFetchMode(): int
@@ -105,7 +100,7 @@ class Csv implements \Iterator, \Countable
 
     public function headers(): array
     {
-        if ($this->headers === null) {
+        if (!isset($this->headers)) {
             // Headers a loaded as part of the rewind method
             $this->rewind();
         }
@@ -114,8 +109,9 @@ class Csv implements \Iterator, \Countable
     }
 
     /**
-     * @inheritdoc
+     * @return array|false|null
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         if ($this->current === null) {
@@ -123,14 +119,12 @@ class Csv implements \Iterator, \Countable
         }
 
         $current = $this->current;
-        if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode == self::FETCH_ASSOC) {
-
+        if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode === self::FETCH_ASSOC) {
             $headers = $this->headers;
 
             // PHP7 Spaceship Operator could work here
             if (count($headers) < count($current)) {
                 throw new \DomainException('Row has more columns than headers');
-
             } elseif (count($headers) > count($current)) {
                 // Headers are too long - pad the columns
                 $current = array_pad($current, count($headers), null);
@@ -142,9 +136,6 @@ class Csv implements \Iterator, \Countable
         return $current;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function next(): void
     {
         if ($this->current === null) {
@@ -161,10 +152,7 @@ class Csv implements \Iterator, \Countable
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function key()
+    public function key(): ?int
     {
         if ($this->current === null) {
             $this->rewind();
@@ -172,20 +160,14 @@ class Csv implements \Iterator, \Countable
         return $this->position;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function valid(): bool
     {
         return ($this->current !== false);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rewind(): void
     {
-        $this->buffer   = '';
+        $this->buffer = '';
         $this->stream->rewind();
         $this->position = 0;
 
@@ -199,12 +181,9 @@ class Csv implements \Iterator, \Countable
         $this->current = $this->fetchLine($this->stream, $this->buffer);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function count(): int
     {
-        if (is_null($this->count)) {
+        if (!isset($this->count)) {
 
             // Store the pointer position and reset the file handle
             $position = $this->stream->tell();
@@ -231,9 +210,9 @@ class Csv implements \Iterator, \Countable
         return $this->count;
     }
 
-    protected function getRegex(): string
+    private function getRegex(): string
     {
-        if (!$this->regex) {
+        if (!isset($this->regex)) {
             $enclosure = preg_quote($this->enclosure);
             $delimiter = preg_quote($this->delimiter);
 
@@ -247,11 +226,9 @@ class Csv implements \Iterator, \Countable
     }
 
     /**
-     * @param StreamInterface $stream
-     * @param string $buffer
      * @return array|bool
      */
-    protected function fetchLine(StreamInterface $stream, string &$buffer)
+    private function fetchLine(StreamInterface $stream, string &$buffer)
     {
         $enclosure = $this->enclosure;
 
@@ -271,7 +248,7 @@ class Csv implements \Iterator, \Countable
         // > signal at the start that the text stream is encoded in UTF-8.
         // > https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
         $offset = 0;
-        if (substr($buffer, 0, 3) == "\xEF\xBB\xBF") {
+        if (substr($buffer, 0, 3) === "\xEF\xBB\xBF") {
             $offset = 3;
         }
 
@@ -297,9 +274,9 @@ class Csv implements \Iterator, \Countable
                 );
             }
 
-            $value     = $matches[1][0];
+            $value = $matches[1][0];
             $delimiter = $matches[2][0];
-            $offset    = $matches[2][1] + strlen($delimiter);
+            $offset = $matches[2][1] + strlen($delimiter);
 
             // if we've matched an enclosure then remove them
             if (isset($value[0]) and $value[0] === $enclosure and substr($value, -1) === $enclosure) {
