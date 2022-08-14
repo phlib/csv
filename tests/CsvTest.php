@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phlib\Csv\Tests;
 
+use GuzzleHttp\Psr7\Utils;
 use Phlib\Csv\Csv;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
-use function GuzzleHttp\Psr7\stream_for;
 
 class CsvTest extends TestCase
 {
@@ -28,7 +28,7 @@ class CsvTest extends TestCase
     {
         // Test the default value
         $maxColumns = 1000;
-        $csv = new Csv(stream_for(''));
+        $csv = new Csv(Utils::streamFor(''));
         static::assertEquals($maxColumns, $csv->getMaxColumns());
 
         // Test changing the value
@@ -39,7 +39,7 @@ class CsvTest extends TestCase
 
     public function testMaxColumnsInvalidArgument(): void
     {
-        $csv = new Csv(stream_for(''));
+        $csv = new Csv(Utils::streamFor(''));
 
         $this->expectException(\InvalidArgumentException::class);
         $csv->setMaxColumns(-1);
@@ -48,7 +48,7 @@ class CsvTest extends TestCase
     public function testFetchMode(): void
     {
         $fetchMode = Csv::FETCH_ASSOC;
-        $csv = new Csv(stream_for(''));
+        $csv = new Csv(Utils::streamFor(''));
         static::assertEquals($fetchMode, $csv->getFetchMode());
 
         $fetchMode = Csv::FETCH_NUM;
@@ -62,7 +62,7 @@ class CsvTest extends TestCase
 
     public function testFetchModeInvalidArgument(): void
     {
-        $csv = new Csv(stream_for(''));
+        $csv = new Csv(Utils::streamFor(''));
 
         $this->expectException(\InvalidArgumentException::class);
         $csv->setFetchMode(3);
@@ -70,7 +70,7 @@ class CsvTest extends TestCase
 
     public function testHasHeader(): void
     {
-        $emptyAdapter = stream_for('');
+        $emptyAdapter = Utils::streamFor('');
 
         // Default value is false
         $csv = new Csv($emptyAdapter);
@@ -219,7 +219,7 @@ email,name,phone
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        $csv = new Csv(stream_for($csvData), true);
+        $csv = new Csv(Utils::streamFor($csvData), true);
         $expectedData = [
             'name' => 'Adam',
             'email' => 'aw@example.com',
@@ -236,7 +236,7 @@ email,name
 aw@example.com,Adam,123
 lr@example.com,Luke,123,456
 CSV;
-        $csv = new Csv(stream_for($csvData), true);
+        $csv = new Csv(Utils::streamFor($csvData), true);
 
         $this->expectException(\DomainException::class);
         $csv->current();
@@ -250,7 +250,7 @@ CSV;
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        $csv = new Csv(stream_for($csvData), true);
+        $csv = new Csv(Utils::streamFor($csvData), true);
 
         $expected = [
             'email' => 'aw@example.com',
@@ -266,6 +266,6 @@ email,name
 aw@example.com,Adam
 lr@example.com,Luke
 CSV;
-        return stream_for($csv);
+        return Utils::streamFor($csv);
     }
 }
