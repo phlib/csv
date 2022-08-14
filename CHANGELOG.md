@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - CHANGELOG.md
+- Add support for PHP v8
 - Type declarations have been added to all method parameters and return types
   where possible.
 - Factory for creating instance of `Csv` from a CSV file or a zipped CSV file

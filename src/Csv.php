@@ -108,6 +108,10 @@ class Csv implements \Iterator, \Countable
         return $this->headers;
     }
 
+    /**
+     * @return array|false|null
+     */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         if ($this->current === null) {
