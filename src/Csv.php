@@ -184,7 +184,6 @@ class Csv implements \Iterator, \Countable
     public function count(): int
     {
         if (!isset($this->count)) {
-
             // Store the pointer position and reset the file handle
             $position = $this->stream->tell();
             $this->stream->rewind();
@@ -258,7 +257,6 @@ class Csv implements \Iterator, \Countable
         $idx = 0;
         $row = [];
         while ($offset < $bufferSize) {
-
             // use the regex to pull out matches
             $matches = null;
             $results = preg_match($regex, $buffer, $matches, PREG_OFFSET_CAPTURE, $offset);
