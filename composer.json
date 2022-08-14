@@ -8,7 +8,11 @@
         "psr/http-message": "^1.0",
         "guzzlehttp/psr7": "^1"
     },
+    "suggest": {
+        "ext-zip": "Required to open CSV files from Zip archives"
+    },
     "require-dev": {
+        "ext-zip": "*",
         "phpunit/phpunit": "^7"
     },
     "autoload": {
