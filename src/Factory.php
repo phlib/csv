@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phlib\Csv;
 
-use function GuzzleHttp\Psr7\stream_for;
+use GuzzleHttp\Psr7\Utils;
 
 class Factory
 {
@@ -26,7 +26,7 @@ class Factory
             );
         }
 
-        return new Csv(stream_for($resource), $hasHeader, $delimiter, $enclosure);
+        return new Csv(Utils::streamFor($resource), $hasHeader, $delimiter, $enclosure);
     }
 
     public static function createFromZipFile(
@@ -66,6 +66,6 @@ class Factory
         $zip->close();
         rewind($resource);
 
-        return new Csv(stream_for($resource), $hasHeader, $delimiter, $enclosure);
+        return new Csv(Utils::streamFor($resource), $hasHeader, $delimiter, $enclosure);
     }
 }
