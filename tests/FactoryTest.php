@@ -15,13 +15,13 @@ class FactoryTest extends TestCase
         $csv = Factory::createFromFile($filename, true);
 
         $expectedResult = ['email', 'name'];
-        $this->assertEquals($expectedResult, $csv->headers());
+        static::assertEquals($expectedResult, $csv->headers());
 
         $expected = [
             'email' => 'aw@example.com',
             'name' => 'Adam',
         ];
-        $this->assertSame($expected, $csv->current());
+        static::assertSame($expected, $csv->current());
     }
 
     public function testCreateFromFileNotExists(): void
@@ -39,13 +39,13 @@ class FactoryTest extends TestCase
         $csv = Factory::createFromZipFile($filename, true);
 
         $expectedResult = ['email', 'name'];
-        $this->assertEquals($expectedResult, $csv->headers());
+        static::assertEquals($expectedResult, $csv->headers());
 
         $expected = [
             'email' => 'aw@example.com',
             'name' => 'Adam',
         ];
-        $this->assertSame($expected, $csv->current());
+        static::assertSame($expected, $csv->current());
     }
 
     public function testCreateFromZipFileNotExists(): void
@@ -60,7 +60,7 @@ class FactoryTest extends TestCase
     public function testCreateFromLargeFileIsMemoryEfficient(): void
     {
         if (getenv('SKIP_LARGE')) {
-            $this->markTestSkipped('Large test skipped; SKIP_LARGE is true');
+            static::markTestSkipped('Large test skipped; SKIP_LARGE is true');
         }
 
         $filename = __DIR__ . '/_files/large.csv';
@@ -76,14 +76,14 @@ class FactoryTest extends TestCase
             Factory::createFromFile($filename);
         } finally {
             unlink($filename);
-            $this->assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
+            static::assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
         }
     }
 
     public function testCreateFromLargeZipFileIsMemoryEfficient(): void
     {
         if (getenv('SKIP_LARGE')) {
-            $this->markTestSkipped('Large test skipped; SKIP_LARGE is true');
+            static::markTestSkipped('Large test skipped; SKIP_LARGE is true');
         }
 
         $filename = __DIR__ . '/_files/large.csv';
@@ -107,7 +107,7 @@ class FactoryTest extends TestCase
             Factory::createFromZipFile($zipName);
         } finally {
             unlink($zipName);
-            $this->assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
+            static::assertLessThan(20 * 1024 * 1024, memory_get_peak_usage()); // less than 20MiB of memory was used
         }
     }
 }

@@ -17,7 +17,7 @@ class CsvTest extends TestCase
         $this->expectExceptionMessage('not seekable');
 
         $stream = $this->createMock(StreamInterface::class);
-        $stream->expects($this->once())
+        $stream->expects(static::once())
             ->method('isSeekable')
             ->willReturn(false);
 
@@ -29,12 +29,12 @@ class CsvTest extends TestCase
         // Test the default value
         $maxColumns = 1000;
         $csv = new Csv(stream_for(''));
-        $this->assertEquals($maxColumns, $csv->getMaxColumns());
+        static::assertEquals($maxColumns, $csv->getMaxColumns());
 
         // Test changing the value
         $maxColumns = 500;
         $csv->setMaxColumns($maxColumns);
-        $this->assertEquals($maxColumns, $csv->getMaxColumns());
+        static::assertEquals($maxColumns, $csv->getMaxColumns());
     }
 
     public function testMaxColumnsInvalidArgument(): void
@@ -49,15 +49,15 @@ class CsvTest extends TestCase
     {
         $fetchMode = Csv::FETCH_ASSOC;
         $csv = new Csv(stream_for(''));
-        $this->assertEquals($fetchMode, $csv->getFetchMode());
+        static::assertEquals($fetchMode, $csv->getFetchMode());
 
         $fetchMode = Csv::FETCH_NUM;
         $csv->setFetchMode($fetchMode);
-        $this->assertEquals($fetchMode, $csv->getFetchMode());
+        static::assertEquals($fetchMode, $csv->getFetchMode());
 
         $fetchMode = Csv::FETCH_ASSOC;
         $csv->setFetchMode($fetchMode);
-        $this->assertEquals($fetchMode, $csv->getFetchMode());
+        static::assertEquals($fetchMode, $csv->getFetchMode());
     }
 
     public function testFetchModeInvalidArgument(): void
@@ -74,11 +74,11 @@ class CsvTest extends TestCase
 
         // Default value is false
         $csv = new Csv($emptyAdapter);
-        $this->assertFalse($csv->hasHeader());
+        static::assertFalse($csv->hasHeader());
 
         // When set, will return the setting value even if data is empty
         $csv = new Csv($emptyAdapter, true);
-        $this->assertTrue($csv->hasHeader());
+        static::assertTrue($csv->hasHeader());
     }
 
     public function testHeaders(): void
@@ -86,11 +86,11 @@ class CsvTest extends TestCase
         // Ensure headers are parsed correctly
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $expectedResult = ['email', 'name'];
-        $this->assertEquals($expectedResult, $csv->headers());
+        static::assertEquals($expectedResult, $csv->headers());
 
         $csv = new Csv($this->getTestCsvStreamInterface(), false);
         $expectedResult = [];
-        $this->assertEquals($expectedResult, $csv->headers());
+        static::assertEquals($expectedResult, $csv->headers());
     }
 
     public function testCurrent(): void
@@ -102,10 +102,10 @@ class CsvTest extends TestCase
             'name' => 'Adam',
             'email' => 'aw@example.com',
         ];
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
 
         // The same data should be returned on subsequent calls to current
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
     }
 
     public function testNext(): void
@@ -118,7 +118,7 @@ class CsvTest extends TestCase
             'email' => 'aw@example.com',
         ];
         $csv->next();
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
 
         // Subsequent calls to next move the pointer to the next record
         $expectedData = [
@@ -126,11 +126,11 @@ class CsvTest extends TestCase
             'email' => 'lr@example.com',
         ];
         $csv->next();
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
 
         // Moving the pointer beyond the end of the data returns false
         $csv->next();
-        $this->assertFalse($csv->current());
+        static::assertFalse($csv->current());
     }
 
     public function testKey(): void
@@ -138,15 +138,15 @@ class CsvTest extends TestCase
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         $expectedValue = 0;
-        $this->assertEquals($expectedValue, $csv->key());
+        static::assertEquals($expectedValue, $csv->key());
 
         $csv->next();
         $expectedValue = 1;
-        $this->assertEquals($expectedValue, $csv->key());
+        static::assertEquals($expectedValue, $csv->key());
 
         // Going past the end of the collection returns null
         $csv->next();
-        $this->assertNull($csv->key());
+        static::assertNull($csv->key());
     }
 
     public function testValid(): void
@@ -154,13 +154,13 @@ class CsvTest extends TestCase
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
 
         $csv->current();
-        $this->assertTrue($csv->valid());
+        static::assertTrue($csv->valid());
 
         $csv->next();
-        $this->assertTrue($csv->valid());
+        static::assertTrue($csv->valid());
 
         $csv->next();
-        $this->assertFalse($csv->valid());
+        static::assertFalse($csv->valid());
     }
 
     public function testRewind(): void
@@ -174,25 +174,25 @@ class CsvTest extends TestCase
             'name' => 'Adam',
             'email' => 'aw@example.com',
         ];
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
     }
 
     public function testCount(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface());
         $expectedCount = 3;
-        $this->assertEquals($expectedCount, $csv->count());
+        static::assertEquals($expectedCount, $csv->count());
 
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
         $expectedCount = 2;
-        $this->assertEquals($expectedCount, $csv->count());
+        static::assertEquals($expectedCount, $csv->count());
 
         // The stream should still be accessible after calling count
         $expectedData = [
             'name' => 'Adam',
             'email' => 'aw@example.com',
         ];
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
 
         // Create a new CSV to reset the count
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
@@ -201,14 +201,14 @@ class CsvTest extends TestCase
         $csv->next();
         $csv->next();
         $expectedCount = 2;
-        $this->assertEquals($expectedCount, $csv->count());
+        static::assertEquals($expectedCount, $csv->count());
 
         // After calling count, the CSV should still be aware of it's position
         $expectedData = [
             'name' => 'Luke',
             'email' => 'lr@example.com',
         ];
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
     }
 
     public function testMoreHeadersThanRowColumns(): void
@@ -225,7 +225,7 @@ CSV;
             'email' => 'aw@example.com',
             'phone' => null,
         ];
-        $this->assertEquals($expectedData, $csv->current());
+        static::assertEquals($expectedData, $csv->current());
     }
 
     public function testMoreRowColumnsThanHeaders(): void
@@ -256,7 +256,7 @@ CSV;
             'email' => 'aw@example.com',
             'name' => 'Adam',
         ];
-        $this->assertSame($expected, $csv->current());
+        static::assertSame($expected, $csv->current());
     }
 
     private function getTestCsvStreamInterface(): StreamInterface
