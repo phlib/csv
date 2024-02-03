@@ -162,7 +162,7 @@ class Csv implements \Iterator, \Countable
 
     public function valid(): bool
     {
-        return ($this->current !== false);
+        return $this->current !== false;
     }
 
     public function rewind(): void

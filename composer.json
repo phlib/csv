@@ -14,7 +14,7 @@
     "require-dev": {
         "ext-zip": "*",
         "phpunit/phpunit": "^9",
-        "symplify/easy-coding-standard": "^11"
+        "symplify/easy-coding-standard": "^12"
     },
     "autoload": {
         "psr-4": {
