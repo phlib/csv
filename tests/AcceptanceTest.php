@@ -32,4 +32,36 @@ class AcceptanceTest extends TestCase
 
         static::assertSame($expected, iterator_to_array($csv));
     }
+
+    public function testFileWithVeryLongLine(): void
+    {
+        /**
+         * The file has a single field with 30k characters on one line, which exceeds the {@see Csv::$rowSize }
+         */
+        $filename = __DIR__ . '/_files/long-line.csv';
+        $fh = @fopen($filename, 'r');
+
+        $csv = new Csv(Utils::streamFor($fh), true);
+
+        // Get the headers without issue
+        $expectedHeader = ['email', 'name', 'fieldA', 'fieldB'];
+        static::assertEquals($expectedHeader, $csv->headers());
+
+        // Line 1 without issue
+        $expected = [
+            'email' => 'test1@example.com',
+            'name' => 'One',
+            'fieldA' => 'Lorem ipsum dolor sit amet',
+            'fieldB' => 'End1',
+        ];
+        static::assertSame($expected, $csv->current());
+
+        // Line 2 cannot be read
+        $this->expectException(\DomainException::class);
+        // @todo The current exception is misleading, as the line is only partially read and misses the quote
+        //       encapsulation, leaving the single long field containing commas broken into many fields
+        $this->expectExceptionMessage('Row has more columns than headers');
+        $csv->next();
+        $csv->current();
+    }
 }
