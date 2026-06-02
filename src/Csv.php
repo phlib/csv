@@ -45,7 +45,7 @@ class Csv implements \Iterator, \Countable
         StreamInterface $stream,
         bool $hasHeader = false,
         string $delimiter = ',',
-        string $enclosure = '"'
+        string $enclosure = '"',
     ) {
         if (!$stream->isSeekable()) {
             throw new \InvalidArgumentException('Stream is not seekable');
@@ -267,8 +267,8 @@ class Csv implements \Iterator, \Countable
                 throw new \DomainException(
                     sprintf(
                         'Cannot read CSV data: invalid field at character position %d',
-                        $offset + 1
-                    )
+                        $offset + 1,
+                    ),
                 );
             }
 

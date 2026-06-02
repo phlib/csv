@@ -12,7 +12,7 @@ class Factory
         string $filename,
         bool $hasHeader = false,
         string $delimiter = ',',
-        string $enclosure = '"'
+        string $enclosure = '"',
     ): Csv {
         $resource = @fopen($filename, 'r');
         if (!$resource) {
@@ -21,8 +21,8 @@ class Factory
                 sprintf(
                     'Failed to open handle to "%s", reason "%s"',
                     $filename,
-                    trim($error['message'])
-                )
+                    trim($error['message']),
+                ),
             );
         }
 
@@ -33,15 +33,15 @@ class Factory
         string $filename,
         bool $hasHeader = false,
         string $delimiter = ',',
-        string $enclosure = '"'
+        string $enclosure = '"',
     ): Csv {
         $zip = new \ZipArchive();
         if ($zip->open($filename) !== true) {
             throw new \RuntimeException(
                 sprintf(
                     'Failed to open Zip file "%s"',
-                    $filename
-                )
+                    $filename,
+                ),
             );
         }
 
@@ -50,8 +50,8 @@ class Factory
             throw new \RuntimeException(
                 sprintf(
                     'Failed to locate entry within Zip file "%s"',
-                    $filename
-                )
+                    $filename,
+                ),
             );
         }
         $zipStream = $zip->getStream($name);
