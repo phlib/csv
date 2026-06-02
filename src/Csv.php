@@ -28,10 +28,7 @@ class Csv implements \Iterator, \Countable
 
     private ?int $position = 0;
 
-    /**
-     * @var array|false|null
-     */
-    private $current;
+    private array|false $current;
 
     private int $count;
 
@@ -99,13 +96,9 @@ class Csv implements \Iterator, \Countable
         return $this->headers;
     }
 
-    /**
-     * @return array|false|null
-     */
-    #[\ReturnTypeWillChange]
-    public function current()
+    public function current(): array|false
     {
-        if ($this->current === null) {
+        if (!isset($this->current)) {
             $this->rewind();
         }
 
@@ -129,7 +122,7 @@ class Csv implements \Iterator, \Countable
 
     public function next(): void
     {
-        if ($this->current === null) {
+        if (!isset($this->current)) {
             $this->rewind();
             return;
         }
@@ -145,7 +138,7 @@ class Csv implements \Iterator, \Countable
 
     public function key(): ?int
     {
-        if ($this->current === null) {
+        if (!isset($this->current)) {
             $this->rewind();
         }
         return $this->position;
@@ -215,10 +208,7 @@ class Csv implements \Iterator, \Countable
         return $this->regex;
     }
 
-    /**
-     * @return array|bool
-     */
-    private function fetchLine(StreamInterface $stream, string &$buffer)
+    private function fetchLine(StreamInterface $stream, string &$buffer): array|false
     {
         $enclosure = $this->enclosure;
 
