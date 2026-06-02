@@ -18,8 +18,8 @@ class FactoryTest extends TestCase
         static::assertEquals($expectedResult, $csv->headers());
 
         $expected = [
-            'email' => 'aw@example.com',
-            'name' => 'Adam',
+            'email' => 'test1@example.com',
+            'name' => 'One',
         ];
         static::assertSame($expected, $csv->current());
     }
@@ -42,8 +42,8 @@ class FactoryTest extends TestCase
         static::assertEquals($expectedResult, $csv->headers());
 
         $expected = [
-            'email' => 'aw@example.com',
-            'name' => 'Adam',
+            'email' => 'test1@example.com',
+            'name' => 'One',
         ];
         static::assertSame($expected, $csv->current());
     }

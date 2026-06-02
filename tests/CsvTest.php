@@ -99,8 +99,8 @@ class CsvTest extends TestCase
 
         // Initial call will return the first record
         $expectedData = [
-            'name' => 'Adam',
-            'email' => 'aw@example.com',
+            'name' => 'One',
+            'email' => 'test1@example.com',
         ];
         static::assertEquals($expectedData, $csv->current());
 
@@ -114,16 +114,16 @@ class CsvTest extends TestCase
 
         // Calling next before the iterator is initialised will set the pointer to the first record
         $expectedData = [
-            'name' => 'Adam',
-            'email' => 'aw@example.com',
+            'name' => 'One',
+            'email' => 'test1@example.com',
         ];
         $csv->next();
         static::assertEquals($expectedData, $csv->current());
 
         // Subsequent calls to next move the pointer to the next record
         $expectedData = [
-            'name' => 'Luke',
-            'email' => 'lr@example.com',
+            'name' => 'Two',
+            'email' => 'test2@example.com',
         ];
         $csv->next();
         static::assertEquals($expectedData, $csv->current());
@@ -171,8 +171,8 @@ class CsvTest extends TestCase
         $csv->rewind();
 
         $expectedData = [
-            'name' => 'Adam',
-            'email' => 'aw@example.com',
+            'name' => 'One',
+            'email' => 'test1@example.com',
         ];
         static::assertEquals($expectedData, $csv->current());
     }
@@ -189,8 +189,8 @@ class CsvTest extends TestCase
 
         // The stream should still be accessible after calling count
         $expectedData = [
-            'name' => 'Adam',
-            'email' => 'aw@example.com',
+            'name' => 'One',
+            'email' => 'test1@example.com',
         ];
         static::assertEquals($expectedData, $csv->current());
 
@@ -205,8 +205,8 @@ class CsvTest extends TestCase
 
         // After calling count, the CSV should still be aware of it's position
         $expectedData = [
-            'name' => 'Luke',
-            'email' => 'lr@example.com',
+            'name' => 'Two',
+            'email' => 'test2@example.com',
         ];
         static::assertEquals($expectedData, $csv->current());
     }
@@ -216,13 +216,13 @@ class CsvTest extends TestCase
         // Additional missing fields from the headers will be defaulted
         $csvData = <<<CSV
 email,name,phone
-aw@example.com,Adam
-lr@example.com,Luke
+test1@example.com,One
+test2@example.com,Two
 CSV;
         $csv = new Csv(Utils::streamFor($csvData), true);
         $expectedData = [
-            'name' => 'Adam',
-            'email' => 'aw@example.com',
+            'name' => 'One',
+            'email' => 'test1@example.com',
             'phone' => null,
         ];
         static::assertEquals($expectedData, $csv->current());
@@ -233,8 +233,8 @@ CSV;
         // Additional fields than the headers will be ignored
         $csvData = <<<CSV
 email,name
-aw@example.com,Adam,123
-lr@example.com,Luke,123,456
+test1@example.com,One,123
+test2@example.com,Two,123,456
 CSV;
         $csv = new Csv(Utils::streamFor($csvData), true);
 
@@ -247,14 +247,14 @@ CSV;
         // Additional fields than the headers will be ignored
         $csvData = <<<CSV
 \xEF\xBB\xBFemail,name
-aw@example.com,Adam
-lr@example.com,Luke
+test1@example.com,One
+test2@example.com,Two
 CSV;
         $csv = new Csv(Utils::streamFor($csvData), true);
 
         $expected = [
-            'email' => 'aw@example.com',
-            'name' => 'Adam',
+            'email' => 'test1@example.com',
+            'name' => 'One',
         ];
         static::assertSame($expected, $csv->current());
     }
@@ -263,8 +263,8 @@ CSV;
     {
         $csv = <<<CSV
 email,name
-aw@example.com,Adam
-lr@example.com,Luke
+test1@example.com,"One"
+test2@example.com,"Two"
 CSV;
         return Utils::streamFor($csv);
     }
