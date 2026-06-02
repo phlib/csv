@@ -123,6 +123,13 @@ class CsvTest extends TestCase
         static::assertEquals($expectedData, $csv->current());
     }
 
+    public function testCurrentEmpty(): void
+    {
+        $csv = new Csv(Utils::streamFor(''), false);
+
+        static::assertFalse($csv->current());
+    }
+
     public function testNext(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
@@ -164,6 +171,19 @@ class CsvTest extends TestCase
         static::assertNull($csv->key());
     }
 
+    public function testKeyEmpty(): void
+    {
+        $csv = new Csv(Utils::streamFor(''), true);
+
+        // Always starts at zero
+        $expectedValue = 0;
+        static::assertEquals($expectedValue, $csv->key());
+
+        // Trying to advance shows it is empty
+        $csv->next();
+        static::assertNull($csv->key());
+    }
+
     public function testValid(): void
     {
         $csv = new Csv($this->getTestCsvStreamInterface(), true);
@@ -175,6 +195,14 @@ class CsvTest extends TestCase
         static::assertTrue($csv->valid());
 
         $csv->next();
+        static::assertFalse($csv->valid());
+    }
+
+    public function testValidEmpty(): void
+    {
+        $csv = new Csv(Utils::streamFor(''), true);
+
+        $csv->rewind();
         static::assertFalse($csv->valid());
     }
 
