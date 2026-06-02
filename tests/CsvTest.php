@@ -6,6 +6,7 @@ namespace Phlib\Csv\Tests;
 
 use GuzzleHttp\Psr7\Utils;
 use Phlib\Csv\Csv;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 
@@ -68,29 +69,43 @@ class CsvTest extends TestCase
         $csv->setFetchMode(3);
     }
 
-    public function testHasHeader(): void
+    public static function dataHeaders(): array
     {
-        $emptyAdapter = Utils::streamFor('');
+        return [
+            'empty' => [false, false, []],
+            'emptyWithHeaders' => [true, false, ['email', 'name']],
+            'noHeaders' => [false, true, ['test1@example.com', 'One']],
+            'withHeaders' => [true, true, ['email', 'name']],
+        ];
+    }
 
+    #[DataProvider('dataHeaders')]
+    public function testHasHeader(
+        bool $includeHeaders,
+        bool $includeContent,
+    ): void {
         // Default value is false
-        $csv = new Csv($emptyAdapter);
+        $csv = new Csv($this->getTestCsvStreamInterface($includeHeaders, $includeContent));
         static::assertFalse($csv->hasHeader());
 
         // When set, will return the setting value even if data is empty
-        $csv = new Csv($emptyAdapter, true);
+        $csv = new Csv($this->getTestCsvStreamInterface($includeHeaders, $includeContent), true);
         static::assertTrue($csv->hasHeader());
     }
 
-    public function testHeaders(): void
-    {
+    #[DataProvider('dataHeaders')]
+    public function testHeaders(
+        bool $includeHeaders,
+        bool $includeContent,
+        array $expectedHeaders,
+    ): void {
         // Ensure headers are parsed correctly
-        $csv = new Csv($this->getTestCsvStreamInterface(), true);
-        $expectedResult = ['email', 'name'];
-        static::assertEquals($expectedResult, $csv->headers());
+        $csv = new Csv($this->getTestCsvStreamInterface($includeHeaders, $includeContent), true);
+        static::assertSame($expectedHeaders, $csv->headers());
 
-        $csv = new Csv($this->getTestCsvStreamInterface(), false);
-        $expectedResult = [];
-        static::assertEquals($expectedResult, $csv->headers());
+        // Headers are always empty when header parsing is disabled, regardless of empty file or otherwise
+        $csv = new Csv($this->getTestCsvStreamInterface($includeHeaders, $includeContent), false);
+        static::assertEmpty($csv->headers());
     }
 
     public function testCurrent(): void
@@ -259,13 +274,23 @@ CSV;
         static::assertSame($expected, $csv->current());
     }
 
-    private function getTestCsvStreamInterface(): StreamInterface
-    {
-        $csv = <<<CSV
-email,name
-test1@example.com,"One"
-test2@example.com,"Two"
-CSV;
+    private function getTestCsvStreamInterface(
+        bool $includeHeaders = true,
+        bool $includeContent = true,
+    ): StreamInterface {
+        $csv = '';
+
+        if ($includeHeaders) {
+            $csv .= "email,name\n";
+        }
+
+        if ($includeContent) {
+            $csv .= <<<CSV
+                test1@example.com,"One"
+                test2@example.com,"Two"
+                CSV;
+        }
+
         return Utils::streamFor($csv);
     }
 }
