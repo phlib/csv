@@ -238,7 +238,7 @@ class Csv implements \Iterator, \Countable
         // > signal at the start that the text stream is encoded in UTF-8.
         // > https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
         $offset = 0;
-        if (substr($buffer, 0, 3) === "\xEF\xBB\xBF") {
+        if (str_starts_with($buffer, "\xEF\xBB\xBF")) {
             $offset = 3;
         }
 
