@@ -12,13 +12,7 @@ class Csv implements \Iterator, \Countable
 
     public const FETCH_NUM = 2;
 
-    private StreamInterface $stream;
-
-    private bool $hasHeader;
-
-    private string $delimiter;
-
-    private string $enclosure;
+    private readonly StreamInterface $stream;
 
     private int $maxColumns = 1000;
 
@@ -43,18 +37,15 @@ class Csv implements \Iterator, \Countable
 
     public function __construct(
         StreamInterface $stream,
-        bool $hasHeader = false,
-        string $delimiter = ',',
-        string $enclosure = '"',
+        private readonly bool $hasHeader = false,
+        private readonly string $delimiter = ',',
+        private readonly string $enclosure = '"',
     ) {
         if (!$stream->isSeekable()) {
             throw new \InvalidArgumentException('Stream is not seekable');
         }
 
         $this->stream = $stream;
-        $this->hasHeader = $hasHeader;
-        $this->delimiter = $delimiter;
-        $this->enclosure = $enclosure;
     }
 
     public function getMaxColumns(): int
