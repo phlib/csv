@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Add a union return type to `fetchLine()` to match the method behaviour.
+- Throw a specific exception when a record's line is too long to read.
+  Previously, an ambiguous exception was thrown ("more columns than headers", or
+  "too many columns"), but the message will now say "line too long". 
 ### Removed
 - Removed support for PHP versions <= v8.0 as they are no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project.

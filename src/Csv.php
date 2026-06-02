@@ -278,10 +278,17 @@ class Csv implements \Iterator, \Countable
 
             // check the delimiter and break out if we've reached the end
             switch ($delimiter) {
+                case '':
+                    // Delimiter is empty when reaching the end of the file with no terminating newline
+                    if ($bufferSize === $this->rowSize) {
+                        // If the buffer was the max size at this point, it is more likely that the row is a very
+                        // long line which exceeds the max buffer size, hence not finding a newline.
+                        throw new \DomainException('Cannot read CSV data: line too long');
+                    }
+                    // no break
                 case "\r\n":
                 case "\n":
                 case "\r":
-                case '':
                     break 2;
             }
         }

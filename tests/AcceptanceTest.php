@@ -17,6 +17,7 @@ class AcceptanceTest extends TestCase
             'lineEndCr' => ['lineend-cr.csv', 'lineend.php'],
             'lineEndCrLf' => ['lineend-crlf.csv', 'lineend.php'],
             'lineEndLf' => ['lineend-lf.csv', 'lineend.php'],
+            'lineEndNoEOF' => ['lineend-no-eof.csv', 'lineend.php'],
             'withQuote' => ['quote-with.csv', 'quote-with.php'],
             'withoutQuote' => ['quote-without.csv', 'quote-without.php'],
         ];
@@ -58,10 +59,7 @@ class AcceptanceTest extends TestCase
 
         // Line 2 cannot be read
         $this->expectException(\DomainException::class);
-        // @todo The current exception is misleading, as the line is only partially read and misses the quote
-        //       encapsulation, leaving the single long field containing commas broken into many fields
-        $this->expectExceptionMessage('Row has more columns than headers');
+        $this->expectExceptionMessage('line too long');
         $csv->next();
-        $csv->current();
     }
 }
