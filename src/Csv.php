@@ -103,7 +103,12 @@ class Csv implements \Iterator, \Countable
         }
 
         $current = $this->current;
-        if ($this->hasHeader and is_array($this->headers) and is_array($current) and $this->fetchMode === self::FETCH_ASSOC) {
+        if (
+            $this->hasHeader &&
+            is_array($this->headers) &&
+            is_array($current) &&
+            $this->fetchMode === self::FETCH_ASSOC
+        ) {
             $headers = $this->headers;
 
             // PHP7 Spaceship Operator could work here
@@ -183,7 +188,7 @@ class Csv implements \Iterator, \Countable
             $this->count = $count;
 
             // Reduce the count by one if a headers row is present
-            if ($this->hasHeader() and $this->count > 0) {
+            if ($this->hasHeader() && $this->count > 0) {
                 $this->count--;
             }
 
@@ -217,7 +222,7 @@ class Csv implements \Iterator, \Countable
         $bufferSize = strlen($buffer);
 
         // check if we've got to the end of the file and the buffer is empty
-        if ($bufferSize === 0 and $stream->eof() === true) {
+        if ($bufferSize === 0 && $stream->eof() === true) {
             // we've finished everything we can do
             return false;
         }
@@ -243,7 +248,7 @@ class Csv implements \Iterator, \Countable
             $results = preg_match($regex, $buffer, $matches, PREG_OFFSET_CAPTURE, $offset);
 
             // if we didn't get any results, or the offset doesn't match then things aren't valid
-            if ($results === 0 or $matches[0][1] !== $offset) {
+            if ($results === 0 || $matches[0][1] !== $offset) {
                 // TODO $row, $offset, sample
                 throw new \DomainException(
                     sprintf(
@@ -258,7 +263,7 @@ class Csv implements \Iterator, \Countable
             $offset = $matches[2][1] + strlen($delimiter);
 
             // if we've matched an enclosure then remove them
-            if (isset($value[0]) and $value[0] === $enclosure and substr($value, -1) === $enclosure) {
+            if (isset($value[0]) && $value[0] === $enclosure && substr($value, -1) === $enclosure) {
                 $value = substr($value, 1, -1);
                 // An enclosed field may contain escaped enclosures
                 $value = str_replace($enclosure . $enclosure, $enclosure, $value);
