@@ -321,4 +321,19 @@ CSV;
 
         return Utils::streamFor($csv);
     }
+
+    public function testDestructListener(): void
+    {
+        $csv = new Csv(Utils::streamFor(''));
+
+        $listenerCalled = false;
+        $csv->onDestruct(function () use (&$listenerCalled): void {
+            $listenerCalled = true;
+        });
+
+        static::assertFalse($listenerCalled);
+
+        unset($csv);
+        static::assertTrue($listenerCalled);
+    }
 }

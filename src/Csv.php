@@ -32,6 +32,8 @@ class Csv implements \Iterator, \Countable
 
     private int $count;
 
+    private \Closure $destructListener;
+
     public function __construct(
         StreamInterface $stream,
         private readonly bool $hasHeader = false,
@@ -298,5 +300,17 @@ class Csv implements \Iterator, \Countable
 
         // return the row
         return $row;
+    }
+
+    public function onDestruct(\Closure $listener): void
+    {
+        $this->destructListener = $listener;
+    }
+
+    public function __destruct()
+    {
+        if (isset($this->destructListener)) {
+            ($this->destructListener)();
+        }
     }
 }
