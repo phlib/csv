@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Add a hook to allow a listener when the iterator is destroyed.
   Helpful for implementations which needs to clean up temporary files.
+### Changed
+- Use namespaced exceptions.
 
 ## [2.1.0] - 2026-06-03
 ### Added

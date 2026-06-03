@@ -6,6 +6,7 @@ namespace Phlib\Csv\Tests;
 
 use GuzzleHttp\Psr7\Utils;
 use Phlib\Csv\Csv;
+use Phlib\Csv\Exception\DomainException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -58,7 +59,7 @@ class AcceptanceTest extends TestCase
         static::assertSame($expected, $csv->current());
 
         // Line 2 cannot be read
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('line too long');
         $csv->next();
     }

@@ -6,6 +6,8 @@ namespace Phlib\Csv\Tests;
 
 use GuzzleHttp\Psr7\Utils;
 use Phlib\Csv\Csv;
+use Phlib\Csv\Exception\DomainException;
+use Phlib\Csv\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
@@ -14,7 +16,7 @@ class CsvTest extends TestCase
 {
     public function testStreamNotSeekable(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('not seekable');
 
         $stream = $this->createMock(StreamInterface::class);
@@ -42,7 +44,7 @@ class CsvTest extends TestCase
     {
         $csv = new Csv(Utils::streamFor(''));
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $csv->setMaxColumns(-1);
     }
 
@@ -65,7 +67,7 @@ class CsvTest extends TestCase
     {
         $csv = new Csv(Utils::streamFor(''));
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $csv->setFetchMode(3);
     }
 
@@ -281,7 +283,7 @@ test2@example.com,Two,123,456
 CSV;
         $csv = new Csv(Utils::streamFor($csvData), true);
 
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
         $csv->current();
     }
 
