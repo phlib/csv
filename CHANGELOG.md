@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.1.0] - 2026-06-03
 ### Added
 - Add a union return type to `fetchLine()` to match the method behaviour.
 - Throw a specific exception when a record's line is too long to read.
