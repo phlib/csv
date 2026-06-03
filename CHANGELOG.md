@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add a union return type to `fetchLine()` to match the method behaviour.
+### Removed
+- Removed support for PHP versions <= v8.0 as they are no longer
+  [actively supported](https://php.net/supported-versions.php) by the PHP project.
 
 ## [2.0.0] - 2022-08-14
 ### Added
