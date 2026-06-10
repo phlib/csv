@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phlib\Csv;
 
+use Phlib\Csv\Exception\DomainException;
+use Phlib\Csv\Exception\InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 
 class Csv implements \Iterator, \Countable
@@ -41,7 +43,7 @@ class Csv implements \Iterator, \Countable
         private readonly string $enclosure = '"',
     ) {
         if (!$stream->isSeekable()) {
-            throw new \InvalidArgumentException('Stream is not seekable');
+            throw new InvalidArgumentException('Stream is not seekable');
         }
 
         $this->stream = $stream;
@@ -62,7 +64,7 @@ class Csv implements \Iterator, \Countable
         ];
         $invalid = (filter_var($maxColumns, FILTER_VALIDATE_INT, $options) === false);
         if ($invalid) {
-            throw new \InvalidArgumentException("Invalid max columns, {$maxColumns}");
+            throw new InvalidArgumentException("Invalid max columns, {$maxColumns}");
         }
 
         $this->maxColumns = $maxColumns;
@@ -72,7 +74,7 @@ class Csv implements \Iterator, \Countable
     {
         $validModes = [self::FETCH_ASSOC, self::FETCH_NUM];
         if (!in_array($mode, $validModes, true)) {
-            throw new \InvalidArgumentException('Unrecognised fetch mode requested.');
+            throw new InvalidArgumentException('Unrecognised fetch mode requested.');
         }
 
         $this->fetchMode = $mode;
@@ -115,7 +117,7 @@ class Csv implements \Iterator, \Countable
 
             // PHP7 Spaceship Operator could work here
             if (count($headers) < count($current)) {
-                throw new \DomainException('Row has more columns than headers');
+                throw new DomainException('Row has more columns than headers');
             } elseif (count($headers) > count($current)) {
                 // Headers are too long - pad the columns
                 $current = array_pad($current, count($headers), null);
@@ -252,7 +254,7 @@ class Csv implements \Iterator, \Countable
             // if we didn't get any results, or the offset doesn't match then things aren't valid
             if ($results === 0 || $matches[0][1] !== $offset) {
                 // TODO $row, $offset, sample
-                throw new \DomainException(
+                throw new DomainException(
                     sprintf(
                         'Cannot read CSV data: invalid field at character position %d',
                         $offset + 1,
@@ -275,7 +277,7 @@ class Csv implements \Iterator, \Countable
             $row[$idx++] = $value;
 
             if ($idx > $this->maxColumns) {
-                throw new \DomainException('Cannot read CSV data: too many columns found');
+                throw new DomainException('Cannot read CSV data: too many columns found');
             }
 
             // check the delimiter and break out if we've reached the end
@@ -285,7 +287,7 @@ class Csv implements \Iterator, \Countable
                     if ($bufferSize === $this->rowSize) {
                         // If the buffer was the max size at this point, it is more likely that the row is a very
                         // long line which exceeds the max buffer size, hence not finding a newline.
-                        throw new \DomainException('Cannot read CSV data: line too long');
+                        throw new DomainException('Cannot read CSV data: line too long');
                     }
                     // no break
                 case "\r\n":

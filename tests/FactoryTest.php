@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phlib\Csv\Tests;
 
+use Phlib\Csv\Exception\RuntimeException;
 use Phlib\Csv\Factory;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +27,7 @@ class FactoryTest extends TestCase
 
     public function testCreateFromFileNotExists(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to open handle');
 
         $filename = __DIR__ . '/_files/does-not-exist.csv';
@@ -50,7 +51,7 @@ class FactoryTest extends TestCase
 
     public function testCreateFromZipFileNotExists(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to open Zip file');
 
         $filename = __DIR__ . '/_files/does-not-exist.csv.zip';

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phlib\Csv;
 
 use GuzzleHttp\Psr7\Utils;
+use Phlib\Csv\Exception\RuntimeException;
 
 class Factory
 {
@@ -17,7 +18,7 @@ class Factory
         $resource = @fopen($filename, 'r');
         if (!$resource) {
             $error = error_get_last();
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf(
                     'Failed to open handle to "%s", reason "%s"',
                     $filename,
@@ -37,7 +38,7 @@ class Factory
     ): Csv {
         $zip = new \ZipArchive();
         if ($zip->open($filename) !== true) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf(
                     'Failed to open Zip file "%s"',
                     $filename,
@@ -47,7 +48,7 @@ class Factory
 
         $name = $zip->getNameIndex(0);
         if (!$name) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf(
                     'Failed to locate entry within Zip file "%s"',
                     $filename,
